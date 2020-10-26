@@ -131,11 +131,12 @@ bool RotaryDial::processEvent(Event* e) {
             break;
         case ST_DEBWINDDOWN:
             printk("DEBWINDOWN\n");
-            this->tm.setDelay(delay);
+            this->tm.setDelay(1);
             XF::getInstance()->pushEvent(&tm);
             break;
         case ST_NOTIFY:
             printk("NOTIFY\n");
+            printk("%d\n",digit);
             XF::getInstance()->pushEvent(&ev);
             notify();
             break;
@@ -147,7 +148,7 @@ bool RotaryDial::processEvent(Event* e) {
         case ST_COUNT:
             printk("COUNT\n");
             digit++;
-            if(digit==10){
+            if(digit>=10){
                 digit=0;
             }
             printk("%d\n",digit);
