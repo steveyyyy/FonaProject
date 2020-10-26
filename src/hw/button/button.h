@@ -9,7 +9,7 @@ using namespace std;
 #ifndef BUTTON_ONCE
 #define BUTTON_ONCE
 
-#define DEBOUNCEDELAY 64
+#define DEBOUNCEDELAY 100
 
 /**
  * @class Button 
