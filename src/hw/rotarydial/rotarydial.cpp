@@ -32,6 +32,10 @@ RotaryDial::RotaryDial(int activePin, int numberPin, const char* activePort, con
     this->pd.setDnd(true);
     this->pd.setId((Event::evID)evPulseDown);
 
+    this->nf.setTarget(this);
+    this->nf.setDnd(true);
+    this->nf.setId((Event::evID)evNotify);
+
     this->in.setTarget(this);
     this->in.setDnd(true);
     this->in.setId(Event::evInitial);
@@ -91,6 +95,14 @@ bool RotaryDial::processEvent(Event* e) {
         break;
     case ST_DEBWINDDOWN:
         if(e->getId()==Event::evTimeout){
+            state=ST_DECIDENOTIFY;
+        }
+        break;
+    case ST_DECIDENOTIFY:
+        if(e->getId()==Event::evDefault){
+            state=ST_WAITDIAL;
+        }
+        if(e->getId()==(Event::evID)evNotify){
             state=ST_NOTIFY;
         }
         break;
@@ -148,8 +160,20 @@ bool RotaryDial::processEvent(Event* e) {
             this->tm.setDelay(delay);
             XF::getInstance()->pushEvent(&tm);
             break;
+        case ST_DECIDENOTIFY:
+            printk("DECIDENOTIFY\n");
+            if(digit==0){
+                XF::getInstance()->pushEvent(&ev);
+            }
+            else{
+                XF::getInstance()->pushEvent(&nf);
+            }
+            break;
         case ST_NOTIFY:
             printk("NOTIFY\n");
+            if(digit>=10){
+                digit=0;
+            }
             printk("%d\n",digit);
             XF::getInstance()->pushEvent(&ev);
             notify();
@@ -170,9 +194,6 @@ bool RotaryDial::processEvent(Event* e) {
         case ST_COUNT:
             printk("COUNT\n");
             digit++;
-            if(digit>=10){
-                digit=0;
-            }
             printk("%d\n",digit);
             XF::getInstance()->pushEvent(&ev);
             break;
