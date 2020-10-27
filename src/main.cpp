@@ -12,7 +12,7 @@ void main(void)
     while (true)
     {
         /* code */
-        k_sleep(K_MSEC(10));
+        k_sleep(K_MSEC(2));
 
         // Work through every Event
         Factory::xf()->execute();

@@ -40,7 +40,7 @@ void Factory::init() {
     im()->enableInt(ntrpt);
 
     //enable interrupts on pPulse
-    ntrpt.edge = IntManager::FALLING;
+    ntrpt.edge = IntManager::BOTH;
     ntrpt.pp.pin = pPulse()->getPin();
     ntrpt.pp.dev = pPulse()->getDriver();
     im()->enableInt(ntrpt);

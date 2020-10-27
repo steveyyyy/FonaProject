@@ -4,7 +4,7 @@
 
 
 RotaryDial::RotaryDial(int activePin, int numberPin, const char* activePort, const char* numberPort): active(activePin,activePort), number(numberPin,numberPort) {
-    delay=64;
+    delay=1;
     this->state = ST_INIT;
 
     this->ev.setTarget(this);
@@ -24,9 +24,13 @@ RotaryDial::RotaryDial(int activePin, int numberPin, const char* activePort, con
     this->wu.setDnd(true);
     this->wu.setId((Event::evID)evWindUp);
 
-    this->pl.setTarget(this);
-    this->pl.setDnd(true);
-    this->pl.setId((Event::evID)evPulse);
+    this->pu.setTarget(this);
+    this->pu.setDnd(true);
+    this->pu.setId((Event::evID)evPulseUp);
+
+    this->pd.setTarget(this);
+    this->pd.setDnd(true);
+    this->pd.setId((Event::evID)evPulseDown);
 
     this->in.setTarget(this);
     this->in.setDnd(true);
@@ -81,8 +85,8 @@ bool RotaryDial::processEvent(Event* e) {
         if(e->getId()==(Event::evID)evWindDown){
             state=ST_DEBWINDDOWN;
         }
-        if(e->getId()==(Event::evID)evPulse){
-            state=ST_DEBPULSE;
+        if(e->getId()==(Event::evID)evPulseDown){
+            state=ST_DEBPULSEDOWN;
         }
         break;
     case ST_DEBWINDDOWN:
@@ -95,7 +99,17 @@ bool RotaryDial::processEvent(Event* e) {
             state=ST_WAITDIAL;
         }
         break;
-    case ST_DEBPULSE:
+    case ST_DEBPULSEDOWN:
+        if(e->getId()==Event::evTimeout){
+            state=ST_WAITPULSEUP;
+        }
+        break;
+    case ST_WAITPULSEUP:
+        if(e->getId()==(Event::evID)evPulseUp){
+            state=ST_DEBPULSEUP;
+        }
+        break;
+    case ST_DEBPULSEUP:
         if(e->getId()==Event::evTimeout){
             state=ST_COUNT;
         }
@@ -104,7 +118,7 @@ bool RotaryDial::processEvent(Event* e) {
         if(e->getId()==Event::evDefault){
             state=ST_COUNTING;
         }
-        else if(e->getId()==(Event::evID)evWindDown){
+        if(e->getId()==(Event::evID)evWindDown){
             state=ST_DEBWINDDOWN;
         } 
         break;
@@ -131,7 +145,7 @@ bool RotaryDial::processEvent(Event* e) {
             break;
         case ST_DEBWINDDOWN:
             printk("DEBWINDOWN\n");
-            this->tm.setDelay(1);
+            this->tm.setDelay(delay);
             XF::getInstance()->pushEvent(&tm);
             break;
         case ST_NOTIFY:
@@ -140,8 +154,16 @@ bool RotaryDial::processEvent(Event* e) {
             XF::getInstance()->pushEvent(&ev);
             notify();
             break;
-        case ST_DEBPULSE:
-            printk("DEBPULSE\n");
+        case ST_DEBPULSEDOWN:
+            printk("DEBPULSEDOWN\n");
+            this->tm.setDelay(delay);
+            XF::getInstance()->pushEvent(&tm);
+            break;
+        case ST_WAITPULSEUP:
+            printk("WAITPULSEUP\n");
+            break;
+        case ST_DEBPULSEUP:
+            printk("DEBPULSEUP\n");
             this->tm.setDelay(delay);
             XF::getInstance()->pushEvent(&tm);
             break;
@@ -169,8 +191,11 @@ void RotaryDial::onInterrupt(u32_t pin) {
         }
     }
     if(pin==(u32_t)number.getPin()){
-        if(number.read()==GPIO::PIN_OFF){      
-            XF::getInstance()->pushEvent(&pl);
+        if(number.read()==GPIO::PIN_ON){      
+            XF::getInstance()->pushEvent(&pu);
+        }
+        else{
+            XF::getInstance()->pushEvent(&pd);
         }
     }
 }

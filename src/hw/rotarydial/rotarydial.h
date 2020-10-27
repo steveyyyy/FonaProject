@@ -32,7 +32,8 @@ class RotaryDial : public IReactive, public IntManager::IIntObserver
     
     typedef enum rotaryEvents{  evWindUp=100,
                                 evWindDown,
-                                evPulse
+                                evPulseDown,
+                                evPulseUp
                              } rotaryEvents;
 
     typedef enum ROTARYSTATE {  ST_INIT,
@@ -41,7 +42,9 @@ class RotaryDial : public IReactive, public IntManager::IIntObserver
                                 ST_COUNTING,   
                                 ST_DEBWINDDOWN,
                                 ST_NOTIFY,
-                                ST_DEBPULSE,
+                                ST_DEBPULSEDOWN,
+                                ST_WAITPULSEUP,
+                                ST_DEBPULSEUP,
                                 ST_COUNT,
                              } ROTARYSTATE;
 
@@ -51,7 +54,8 @@ class RotaryDial : public IReactive, public IntManager::IIntObserver
     Event ev; //default
     Event wu;//windup event
     Event wd; //winddow event
-    Event pl; //pulseevent
+    Event pu; //pulseUp
+    Event pd; //pulseDown
     Event in; //initial event
     Event tm;//timeoutEvent
     vector<IRotaryObserver*> subscribers;
