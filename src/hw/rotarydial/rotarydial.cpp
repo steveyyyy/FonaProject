@@ -3,7 +3,10 @@
 
 
 
-RotaryDial::RotaryDial(int activePin, int numberPin, const char* activePort, const char* numberPort): active(activePin,activePort), number(numberPin,numberPort) {
+RotaryDial::RotaryDial(GPI* active, GPI* number){
+    this->number=number;
+    this->active=active;
+
     delay=1;
     this->state = ST_INIT;
 
@@ -43,24 +46,18 @@ RotaryDial::RotaryDial(int activePin, int numberPin, const char* activePort, con
 RotaryDial::~RotaryDial() {}
 
 void RotaryDial::initHW() {
-    active.setPulldown();
-    number.setPulldown();
-
-    active.initHW();
-    number.initHW();
-
     //interruptmanager of number pin
     IntManager::Subscription subNumber;
     subNumber.subscriber=this;
-    subNumber.pp.pin=number.getPin();
-    subNumber.pp.dev=number.getDriver();
+    subNumber.pp.pin=number->getPin();
+    subNumber.pp.dev=number->getDriver();
     IntManager::getInstance()->subscribe(subNumber);
 
     //interruptmanager of active pin
     IntManager::Subscription subActive;
     subActive.subscriber=this;
-    subActive.pp.pin=active.getPin();
-    subActive.pp.dev=active.getDriver();
+    subActive.pp.pin=active->getPin();
+    subActive.pp.dev=active->getDriver();
     IntManager::getInstance()->subscribe(subActive);
 }
 
@@ -203,16 +200,16 @@ bool RotaryDial::processEvent(Event* e) {
 }
 
 void RotaryDial::onInterrupt(u32_t pin) {
-    if(pin==(u32_t)active.getPin()){
-        if(active.read()==GPIO::PIN_ON){      
+    if(pin==(u32_t)active->getPin()){
+        if(active->read()==GPIO::PIN_ON){      
             XF::getInstance()->pushEvent(&wu);
         }
         else{     
             XF::getInstance()->pushEvent(&wd);
         }
     }
-    if(pin==(u32_t)number.getPin()){
-        if(number.read()==GPIO::PIN_ON){      
+    if(pin==(u32_t)number->getPin()){
+        if(number->read()==GPIO::PIN_ON){      
             XF::getInstance()->pushEvent(&pu);
         }
         else{
@@ -248,11 +245,11 @@ void RotaryDial::notify() {
 }
 
 int RotaryDial::getActiveId(){
-    return active.getUId();
+    return active->getUId();
 }
 
 int RotaryDial::getNumberId(){
-    return number.getUId();
+    return number->getUId();
 }
 
 void RotaryDial::startBehaviour()

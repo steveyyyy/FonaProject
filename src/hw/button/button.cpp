@@ -9,8 +9,9 @@ using namespace std;
  * @param p1 Pin number
  * @param port Port name
  */
-Button::Button(int p1, const char* port) : pin(p1,port)
+Button::Button(GPI* pin)
 {
+    this->pin=pin;
     this->state = ST_INIT;
     this->ev.setTarget(this);
     this->ev.setDnd(1);
@@ -31,14 +32,13 @@ Button::~Button()
 void Button::initHW()
 {
     //initialize the buttons pin
-    pin.setPulldown();
-    pin.initHW();    
+
     
     //subscribe to interrupts from the butoons pin
     IntManager::Subscription sub;
     sub.subscriber=this; //need to implement IIIntObserver!!
-    sub.pp.pin=this->pin.getPin();
-    sub.pp.dev=this->pin.getDriver();
+    sub.pp.pin=this->pin->getPin();
+    sub.pp.dev=this->pin->getDriver();
     IntManager::getInstance()->subscribe(sub);
 }
 
@@ -81,7 +81,7 @@ void Button::notify()
     vector<IButtonObserver*>::iterator it;
     for (it=subscribers.begin(); it!=subscribers.end();++it)
     {
-        (*it)->onButton(this->pin.getUId(), this->state == ST_PRESSED);
+        (*it)->onButton(this->pin->getUId(), this->state == ST_PRESSED);
     }
 }
 
@@ -128,7 +128,7 @@ bool Button::processEvent(Event* e)
         case ST_DECIDE:
         if (e->getId() == Event::evDefault)
         {
-            if (pin.read() == GPIO::PIN_ON)
+            if (pin->read() == GPIO::PIN_ON)
             {
                 this->state = ST_PRESSED;
             }
@@ -141,7 +141,7 @@ bool Button::processEvent(Event* e)
         case ST_PRESSED:
             if (e->getId() == Event::evInt)
             {
-                if (pin.read() == GPIO::PIN_OFF)
+                if (pin->read() == GPIO::PIN_OFF)
                 {
                     this->state = ST_DEBOUNCE;
                 }
@@ -150,7 +150,7 @@ bool Button::processEvent(Event* e)
         case ST_RELEASED:
             if (e->getId() == Event::evInt)
             {
-                if (pin.read() == GPIO::PIN_ON)
+                if (pin->read() == GPIO::PIN_ON)
                 {
                     this->state = ST_DEBOUNCE;
                 }
@@ -180,12 +180,12 @@ bool Button::processEvent(Event* e)
             break;
             case ST_PRESSED:
                 printk("PRESSED\n");
-                printk("Button %02d pressed\n", this->pin.getPin());
+                printk("Button %02d pressed\n", this->pin->getPin());
                 notify();
             break;
             case ST_RELEASED:
                 printk("RELEASED\n");
-                printk("Button %02d released\n", this->pin.getPin());
+                printk("Button %02d released\n", this->pin->getPin());
                 notify();
             break;
         }
@@ -211,5 +211,5 @@ void Button::startBehaviour()
  */
 int Button::getId()
 {
-    return pin.getUId();
+    return pin->getUId();
 }

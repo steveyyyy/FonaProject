@@ -30,7 +30,7 @@ public:
 
     typedef enum BUTTONSTATES {ST_INIT,ST_DEBOUNCE,ST_DECIDE, ST_PRESSED, ST_RELEASED} BUTTONSTATES; /**< enum states of a button */
 
-    Button(int p1, const char* port);
+    Button(GPI* pin);
     ~Button();
     void initHW();
     bool processEvent(Event* e);
@@ -42,7 +42,7 @@ public:
     int getId();
 
 private:
-    GPI pin;                                /**< General Purpose Input pin */
+    GPI* pin;                                /**< General Purpose Input pin */
     BUTTONSTATES state;                     /**< State of button */
     Event ev;                               /**< event */
     vector<IButtonObserver*> subscribers;   /**< subscriber list */

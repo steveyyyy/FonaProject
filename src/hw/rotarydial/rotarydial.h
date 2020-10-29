@@ -16,7 +16,7 @@ class RotaryDial : public IReactive, public IntManager::IIntObserver
         public:
         virtual void onDigit(int digit) = 0;
     };
-    RotaryDial(int activePin, int numberPin, const char* activePort, const char* numberPort);
+    RotaryDial(GPI* active, GPI* number);
     ~RotaryDial();
     
     void initHW();
@@ -51,8 +51,8 @@ class RotaryDial : public IReactive, public IntManager::IIntObserver
                              } ROTARYSTATE;
 
     private:
-    GPI active;
-    GPI number;
+    GPI* active;
+    GPI* number;
     Event ev; //default
     Event wu;//windup event
     Event wd; //winddow event
