@@ -2,15 +2,16 @@
 
 GPI Factory::_pinWindUp(5,"GPIOB"); //Greeen Cable on D11
 GPI Factory::_pinPulse(4,"GPIOB"); //Brown Cable on D12
-RotaryDial Factory::_rotaryDial(5,4,"GPIOB","GPIOB");
+RotaryDial Factory::_rotaryDial(&_pinWindUp,&_pinPulse);
 
 LED Factory::_ledGreen(0,"GPIOA");
 LED Factory::_ledRed(1,"GPIOA");
 
 GPI Factory::_pinAnswer(11,"GPIOA");
 GPI Factory::_pinHangUp(8,"GPIOA");
-Button Factory::_btnAnswer(11,"GPIOA");
-Button Factory::_btnHangUp(8,"GPIOA");
+Button Factory::_btnAnswer(&_pinAnswer);
+Button Factory::_btnHangUp(&_pinHangUp);
+Dial Factory::_dialer(&_btnAnswer,&_btnHangUp);
 
 
 Factory::Factory(/* args */) {
@@ -24,6 +25,11 @@ Factory::~Factory() {
 void Factory::init() {
     xf()->init();
 
+    //set to pulldown
+    pWindUp()->setPulldown();
+    pPulse()->setPulldown();
+    pAnswer()->setPulldown();
+    pHangUp()->setPulldown(); 
     //initialize the pins
     pWindUp()->initHW();
     pPulse()->initHW();
@@ -69,6 +75,9 @@ void Factory::init() {
 void Factory::build() {
     // Nothing to do
     // blinkerA()->setLed(ledGreen());
+    btnAnswer()->subscribe(dialer());
+    btnHangUp()->subscribe(dialer());
+    rotary()->subscribe(dialer());
     
 }
 
@@ -80,5 +89,6 @@ void Factory::start() {
 
     btnAnswer()->startBehaviour();
     btnHangUp()->startBehaviour();
+    dialer()->startBehaviour();
 }
 

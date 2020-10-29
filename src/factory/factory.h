@@ -5,6 +5,7 @@
 #include "../hw/rotarydial/rotarydial.h"
 #include "../hw/led/led.h"
 #include "../hw/button/button.h"
+#include "../controller/dial.h"
 
 class Factory
 {
@@ -24,6 +25,7 @@ public:
     static GPI* pHangUp(){return &_pinHangUp;}
     static Button* btnAnswer(){return &_btnAnswer;}
     static Button* btnHangUp(){return &_btnHangUp;}
+    static Dial* dialer(){return &_dialer;}
 
     static XF* xf(){return XF::getInstance();}
     static IntManager* im(){return IntManager::getInstance();}
@@ -44,6 +46,8 @@ private:
     static GPI _pinHangUp;
     static Button _btnAnswer;
     static Button _btnHangUp;
+
+    static Dial _dialer;
 };
 
 #endif
