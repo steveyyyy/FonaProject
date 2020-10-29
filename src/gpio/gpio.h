@@ -22,12 +22,12 @@ public:
     struct device* getDriver();
 
 protected:
-    u8_t id;                /**< ID */
+    u8_t id;                /**< unique ID */
     int pin;                /**< pin number */
     struct device* driver;  /**< device structur driver */ 
     char* port;             /**< port name */
     int config;             /**< configuration number */
-    static u8_t uid;        /**< unique ID */
+    static u8_t uid;        /**< unique ID generator */
 };
 
 #endif

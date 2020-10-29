@@ -57,7 +57,7 @@ int GPIO::getPin()
  */
 int GPIO::getUId()
 {
-    return this->uid;
+    return this->id;
 }
 
 /**
