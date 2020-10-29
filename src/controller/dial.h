@@ -13,7 +13,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         typedef enum DIALERSTATE{ ST_INIT, 
                                    ST_WAITGREEN, 
                                    ST_DIALING, 
- //                                  ST_ADDNUMBER, 
+                                //    ST_ADDNUMBER, 
                                    ST_NOTIFY
                                  } DIALERSTATE;
 
@@ -21,7 +21,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                     evRedPressed,
 //                                    evOnDigit
                                  } rotaryEvents;
-        Dial();
+        Dial(Button* buttonAnswer, Button* buttonHangUp);
         ~Dial();
         string getNumber();
         void deleteNumber();
@@ -30,13 +30,15 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         bool processEvent(Event* event);
         void startBehaviour();
     private:
+        Button* buttonAnswer;
+        Button* buttonHangUp;
         string number;
         bool listenOnDigits;
         DIALERSTATE state;
-        Event in;
-        Event ev;
-        Event gp;
-        Event rp;
+        Event in; //inital event
+        Event ev; //default event
+        Event gp; //greenpressed event
+        Event rp; //redpressed event
 
 };
 

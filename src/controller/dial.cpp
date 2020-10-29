@@ -1,6 +1,10 @@
 #include "dial.h"
 
-Dial::Dial(){
+Dial::Dial(Button* buttonAnswer, Button* buttonHangUp){
+
+    this->buttonAnswer=buttonAnswer;
+    this->buttonHangUp=buttonHangUp;
+
     listenOnDigits=false;
     state=ST_INIT;
     number="";
@@ -32,7 +36,13 @@ void Dial::deleteNumber(){
 }
 
 void Dial::onButton(int id, bool pressed){
-//    if
+    printk("pressed %d,%d",id,pressed);
+    if(pressed==true&&buttonAnswer->getId()==id){
+        XF::getInstance()->pushEvent(&gp);
+    }
+    if(pressed==true&&buttonHangUp->getId()==id){
+        XF::getInstance()->pushEvent(&rp);
+    }
 }
 
 void Dial::onDigit(int digit){
@@ -77,20 +87,20 @@ bool Dial::processEvent(Event* e){
         processed=true;
         switch(state){
             case ST_INIT:
-                printk("ST_INIT");
+                printk("ST_INIT\n");
                 break;
             case ST_WAITGREEN:
                 listenOnDigits=false;
                 deleteNumber();
-                printk("ST_WAITGREEN");
+                printk("ST_WAITGREEN\n");
                 break;
             case ST_DIALING:
-                printk("ST_DIALING");
+                printk("ST_DIALING\n");
                 listenOnDigits=true;
                 break;
             case ST_NOTIFY:
                 listenOnDigits=false;
-                printk("ST_NOTIFY");
+                printk("ST_NOTIFY\n");
                 XF::getInstance()->pushEvent(&ev);
                 break;
         }
