@@ -180,12 +180,12 @@ bool Button::processEvent(Event* e)
             break;
             case ST_PRESSED:
                 printk("PRESSED\n");
-                printk("Button %02d pressed\n", this->pin->getPin());
+                printk("Button %02d(%d) pressed\n", this->pin->getPin(),this->pin->getUId());
                 notify();
             break;
             case ST_RELEASED:
                 printk("RELEASED\n");
-                printk("Button %02d released\n", this->pin->getPin());
+                printk("Button %02d(%d) released\n", this->pin->getPin(),this->getId());
                 notify();
             break;
         }
@@ -211,5 +211,5 @@ void Button::startBehaviour()
  */
 int Button::getId()
 {
-    return pin->getUId();
+    return this->pin->getUId();
 }
