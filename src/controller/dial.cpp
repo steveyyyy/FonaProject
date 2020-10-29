@@ -36,7 +36,6 @@ void Dial::deleteNumber(){
 }
 
 void Dial::onButton(int id, bool pressed){
-    printk("pressed %d,%d",id,pressed);
     if(pressed==true&&buttonAnswer->getId()==id){
         XF::getInstance()->pushEvent(&gp);
     }
