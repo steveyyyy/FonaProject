@@ -6,6 +6,7 @@
 
 #include "../hw/rotarydial/rotarydial.h"
 #include "../hw/button/button.h"
+#include "../hw/led/led.h"
 
 class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Button::IButtonObserver
 {
@@ -21,7 +22,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                     evRedPressed,
 //                                    evOnDigit
                                  } rotaryEvents;
-        Dial(Button* buttonAnswer, Button* buttonHangUp);
+        Dial(Button* buttonAnswer, Button* buttonHangUp, LED* ledGreen, LED* ledRed);
         ~Dial();
         string getNumber();
         void deleteNumber();
@@ -32,6 +33,8 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
     private:
         Button* buttonAnswer;
         Button* buttonHangUp;
+        LED* ledGreen;
+        LED* ledRed;
         string number;
         bool listenOnDigits;
         DIALERSTATE state;

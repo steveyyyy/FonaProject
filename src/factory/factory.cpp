@@ -11,7 +11,7 @@ GPI Factory::_pinAnswer(11,"GPIOA");
 GPI Factory::_pinHangUp(8,"GPIOA");
 Button Factory::_btnAnswer(&_pinAnswer);
 Button Factory::_btnHangUp(&_pinHangUp);
-Dial Factory::_dialer(&_btnAnswer,&_btnHangUp);
+Dial Factory::_dialer(&_btnAnswer,&_btnHangUp,&_ledGreen,&_ledRed);
 
 
 Factory::Factory(/* args */) {

@@ -1,6 +1,9 @@
 #include "dial.h"
 
-Dial::Dial(Button* buttonAnswer, Button* buttonHangUp){
+Dial::Dial(Button* buttonAnswer, Button* buttonHangUp, LED* ledGreen, LED* ledRed){
+
+    this->ledGreen=ledGreen;
+    this->ledRed=ledRed;
 
     this->buttonAnswer=buttonAnswer;
     this->buttonHangUp=buttonHangUp;
@@ -89,15 +92,20 @@ bool Dial::processEvent(Event* e){
                 printk("ST_INIT\n");
                 break;
             case ST_WAITGREEN:
+                ledGreen->off();
+                ledRed->off();
                 listenOnDigits=false;
                 deleteNumber();
                 printk("ST_WAITGREEN\n");
                 break;
             case ST_DIALING:
+                ledGreen->on();
+                ledRed->on();
                 printk("ST_DIALING\n");
                 listenOnDigits=true;
                 break;
-            case ST_NOTIFY:
+            case ST_NOTIFY: //not done yet
+                ledRed->off();
                 listenOnDigits=false;
                 printk("ST_NOTIFY\n");
                 XF::getInstance()->pushEvent(&ev);
