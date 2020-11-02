@@ -81,7 +81,6 @@ bool Dial::processEvent(Event* e){
             break;
         case ST_NOTIFY:
             if(e->getId()==Event::evDefault){
-                printk(number.c_str());
                 state=ST_WAITGREEN;     
             }
             break;
@@ -109,6 +108,8 @@ bool Dial::processEvent(Event* e){
                 ledRed->off();
                 listenOnDigits=false;
                 printk("ST_NOTIFY\n");
+                printk(number.c_str());
+                printk("\n");
                 XF::getInstance()->pushEvent(&ev);
                 break;
         }
