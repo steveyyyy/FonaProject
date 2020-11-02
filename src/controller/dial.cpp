@@ -49,7 +49,7 @@ void Dial::onButton(int id, bool pressed){
 
 void Dial::onDigit(int digit){
     if(listenOnDigits){
-        number += digit;
+        number += std::to_string(digit);
     }
 }
 
@@ -99,13 +99,13 @@ bool Dial::processEvent(Event* e){
                 printk("ST_WAITGREEN\n");
                 break;
             case ST_DIALING:
-                ledGreen->on();
                 ledRed->on();
                 printk("ST_DIALING\n");
                 listenOnDigits=true;
                 break;
             case ST_NOTIFY: //not done yet
                 ledRed->off();
+                ledGreen->on();
                 listenOnDigits=false;
                 printk("ST_NOTIFY\n");
                 printk(number.c_str());
