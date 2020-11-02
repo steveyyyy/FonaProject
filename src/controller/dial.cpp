@@ -81,6 +81,7 @@ bool Dial::processEvent(Event* e){
             break;
         case ST_NOTIFY:
             if(e->getId()==Event::evDefault){
+                printk(number.c_str());
                 state=ST_WAITGREEN;     
             }
             break;
