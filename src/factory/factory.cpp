@@ -7,11 +7,10 @@ RotaryDial Factory::_rotaryDial(&_pinWindUp,&_pinPulse);
 LED Factory::_ledGreen(0,"GPIOA");
 LED Factory::_ledRed(1,"GPIOA");
 
-GPI Factory::_pinAnswer(11,"GPIOA");
-GPI Factory::_pinHangUp(8,"GPIOA");
-Button Factory::_btnAnswer(&_pinAnswer);
-Button Factory::_btnHangUp(&_pinHangUp);
-Dial Factory::_dialer(&_btnAnswer,&_btnHangUp,&_ledGreen,&_ledRed);
+GPI Factory::_pinSwitchhook(11,"GPIOA");
+Button Factory::_switchhook(&_pinSwitchhook);
+
+Dial Factory::_dialer(&_switchhook,&_ledGreen,&_ledRed);
 
 
 Factory::Factory(/* args */) {
@@ -28,13 +27,13 @@ void Factory::init() {
     //set to pulldown
     pWindUp()->setPulldown();
     pPulse()->setPulldown();
-    pAnswer()->setPulldown();
-    pHangUp()->setPulldown(); 
+    pSwitchhook()->setPulldown();
+
     //initialize the pins
     pWindUp()->initHW();
     pPulse()->initHW();
-    pAnswer()->initHW();
-    pHangUp()->initHW(); 
+    pSwitchhook()->initHW();
+
 
     
 
@@ -51,16 +50,10 @@ void Factory::init() {
     ntrpt.pp.dev = pPulse()->getDriver();
     im()->enableInt(ntrpt);
 
-    //enable interrupts on pAnswer
+    //enable interrupts on pSwitchhook
     ntrpt.edge = IntManager::BOTH;
-    ntrpt.pp.pin = pAnswer()->getPin();
-    ntrpt.pp.dev = pAnswer()->getDriver();
-    im()->enableInt(ntrpt);
-
-    //enable interrupts on pHangUp
-    ntrpt.edge = IntManager::BOTH;
-    ntrpt.pp.pin = pHangUp()->getPin();
-    ntrpt.pp.dev = pHangUp()->getDriver();
+    ntrpt.pp.pin = pSwitchhook()->getPin();
+    ntrpt.pp.dev = pSwitchhook()->getDriver();
     im()->enableInt(ntrpt);
 
     rotary()->initHW();
@@ -68,15 +61,13 @@ void Factory::init() {
     ledGreen()->initHW();
     ledRed()->initHW();
 
-    btnAnswer()->initHW();
-    btnHangUp()->initHW();
+    switchhook()->initHW();
 }
 
 void Factory::build() {
     // Nothing to do
     // blinkerA()->setLed(ledGreen());
-    btnAnswer()->subscribe(dialer());
-    btnHangUp()->subscribe(dialer());
+    switchhook()->subscribe(dialer());
     rotary()->subscribe(dialer());
     
 }
@@ -87,8 +78,7 @@ void Factory::start() {
     // ledGreen()->off();
     // ledRed()->off();
 
-    btnAnswer()->startBehaviour();
-    btnHangUp()->startBehaviour();
+    switchhook()->startBehaviour();
     dialer()->startBehaviour();
 }
 

@@ -21,10 +21,9 @@ public:
     static LED* ledGreen() {return &_ledGreen;}
     static LED* ledRed() {return &_ledRed;}
 
-    static GPI* pAnswer(){return &_pinAnswer;}
-    static GPI* pHangUp(){return &_pinHangUp;}
-    static Button* btnAnswer(){return &_btnAnswer;}
-    static Button* btnHangUp(){return &_btnHangUp;}
+    static GPI* pSwitchhook(){return &_pinSwitchhook;}
+
+    static Button* switchhook(){return &_switchhook;}
     static Dial* dialer(){return &_dialer;}
 
     static XF* xf(){return XF::getInstance();}
@@ -42,10 +41,8 @@ private:
     static LED _ledGreen;
     static LED _ledRed;
 
-    static GPI _pinAnswer;
-    static GPI _pinHangUp;
-    static Button _btnAnswer;
-    static Button _btnHangUp;
+    static GPI _pinSwitchhook;
+    static Button _switchhook;
 
     static Dial _dialer;
 };
