@@ -1,12 +1,11 @@
 #include "dial.h"
 
-Dial::Dial(Button* buttonAnswer, Button* buttonHangUp, LED* ledGreen, LED* ledRed){
+Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed){
 
     this->ledGreen=ledGreen;
     this->ledRed=ledRed;
 
-    this->buttonAnswer=buttonAnswer;
-    this->buttonHangUp=buttonHangUp;
+    this->switchhook=switchhook;
 
     listenOnDigits=false;
     state=ST_INIT;
@@ -39,11 +38,11 @@ void Dial::deleteNumber(){
 }
 
 void Dial::onButton(int id, bool pressed){
-    if(pressed==true&&buttonAnswer->getId()==id){
-        XF::getInstance()->pushEvent(&gp);
-    }
-    if(pressed==true&&buttonHangUp->getId()==id){
+    if(pressed){
         XF::getInstance()->pushEvent(&rp);
+    }
+    else{
+        XF::getInstance()->pushEvent(&gp);
     }
 }
 
