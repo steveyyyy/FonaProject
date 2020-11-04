@@ -19,13 +19,21 @@ Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed){
     this->ev.setDnd(true);
     this->ev.setId(Event::evDefault);
 
-    this->gp.setTarget(this);
-    this->gp.setDnd(true);
-    this->gp.setId((Event::evID)evGreenPressed);
+    this->hu.setTarget(this);
+    this->hu.setDnd(true);
+    this->hu.setId((Event::evID)evHookUp);
 
-    this->rp.setTarget(this);
-    this->rp.setDnd(true);
-    this->rp.setId((Event::evID)evRedPressed);
+    this->hd.setTarget(this);
+    this->hd.setDnd(true);
+    this->hd.setId((Event::evID)evHookDown);
+
+    this->od.setTarget(this);
+    this->od.setDnd(true);
+    this->od.setId((Event::evID)evOnDigit);
+
+    this->nf.setTarget(this);
+    this->nf.setDnd(true);
+    this->nf.setId((Event::evID)evNotify);
 }
 Dial::~Dial(){}
 
@@ -39,10 +47,10 @@ void Dial::deleteNumber(){
 
 void Dial::onButton(int id, bool pressed){
     if(pressed){
-        XF::getInstance()->pushEvent(&rp);
+        XF::getInstance()->pushEvent(&hd);
     }
     else{
-        XF::getInstance()->pushEvent(&gp);
+        XF::getInstance()->pushEvent(&hu);
     }
 }
 
@@ -50,6 +58,7 @@ void Dial::onDigit(int digit){
     if(listenOnDigits){
         number += std::to_string(digit);
     }
+    XF::getInstance()->pushEvent(&od);
 }
 
 void Dial::startBehaviour(){
@@ -62,25 +71,33 @@ bool Dial::processEvent(Event* e){
     switch(state){
         case ST_INIT:
             if (e->getId() == Event::evInitial){
-                this->state = ST_WAITGREEN;
+                this->state = ST_WAITHOOKUP;
             }
             break;
-        case ST_WAITGREEN:
-            if(e->getId()==(Event::evID)evGreenPressed){
+        case ST_WAITHOOKUP:
+            if(e->getId()==(Event::evID)evHookUp){
                 state=ST_DIALING;     
             }
             break;
         case ST_DIALING:
-            if(e->getId()==(Event::evID)evGreenPressed){
+            if(e->getId()==(Event::evID)evNotify){
                 state=ST_NOTIFY;     
             }
-            if(e->getId()==(Event::evID)evRedPressed){
-                state=ST_WAITGREEN;     
+            if(e->getId()==(Event::evID)evOnDigit){
+                state=ST_VALIDATEDIGIT;     
+            }
+            break;
+        case ST_VALIDATEDIGIT:
+            if(e->getId()==Event::evDefault){
+                state=ST_DIALING;     
+            }
+            if(e->getId()==(Event::evID)evNotify){
+                state=ST_NOTIFY;     
             }
             break;
         case ST_NOTIFY:
             if(e->getId()==Event::evDefault){
-                state=ST_WAITGREEN;     
+                state=ST_WAITHOOKUP;     
             }
             break;
     }
@@ -90,17 +107,32 @@ bool Dial::processEvent(Event* e){
             case ST_INIT:
                 printk("ST_INIT\n");
                 break;
-            case ST_WAITGREEN:
+            case ST_WAITHOOKUP:
                 ledGreen->off();
                 ledRed->off();
                 listenOnDigits=false;
                 deleteNumber();
-                printk("ST_WAITGREEN\n");
+                printk("ST_WAITHOOKUP\n");
                 break;
             case ST_DIALING:
                 ledRed->on();
                 printk("ST_DIALING\n");
                 listenOnDigits=true;
+                break;
+            case ST_VALIDATEDIGIT:
+                printk("ST_VALIDATEDIGIT\n");
+                listenOnDigits=false;
+                for(string *emergencyNumber: emergencyNumbers){
+                    if(emergencyNumber[0]==number){
+                        XF::getInstance()->pushEvent(&nf);
+                    }
+                }
+                if(number.length()==10&&number[0]==0&&number[1]!=0){
+                    XF::getInstance()->pushEvent(&nf);
+                }
+                else{
+                    XF::getInstance()->pushEvent(&ev);
+                }
                 break;
             case ST_NOTIFY: //not done yet
                 ledRed->off();

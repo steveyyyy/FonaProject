@@ -12,13 +12,16 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
 {
     public:
         typedef enum DIALERSTATE{ ST_INIT, 
-                                   ST_WAITGREEN, 
-                                   ST_DIALING, 
+                                   ST_WAITHOOKUP, 
+                                   ST_DIALING,
+                                   ST_VALIDATEDIGIT,
                                    ST_NOTIFY
                                  } DIALERSTATE;
 
-        typedef enum dialerEvents{  evGreenPressed=200,
-                                    evRedPressed,
+        typedef enum dialerEvents{  evHookUp=200,
+                                    evHookDown,
+                                    evOnDigit,
+                                    evNotify,
                                  } rotaryEvents;
         Dial(Button* switchhook, LED* ledGreen, LED* ledRed);
         ~Dial();
@@ -37,8 +40,16 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         DIALERSTATE state;
         Event in; //inital event
         Event ev; //default event
-        Event gp; //greenpressed event
-        Event rp; //redpressed event
+        Event hu; //hookup event
+        Event hd; //hookdown event
+        Event od; //OnDigit event
+        Event nf; //Notify event
+        string emergencyNumbers[6][2]={ {"112","Notruf"},
+                                        {"117","Polizei"},
+                                        {"118","Feuerwehr"},
+                                        {"144","Sanität"},
+                                        {"1414","REGA"},
+                                        {"145","Toxinfo"}};
 
 };
 
