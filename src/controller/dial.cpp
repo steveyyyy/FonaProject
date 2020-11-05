@@ -2,11 +2,13 @@
 
 void Dial::onTimeout(struct k_timer* t){
     printk("timer over");
+    Event* nf;
+    nf = (Event*) k_timer_user_data_get(t);
+    XF::getInstance()->pushEvent(nf);
+    //k_timer_stop(t);
 }
 
 Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed){
-
-    k_timer_init(t, &Dial::onTimeout, NULL);
 
     this->ledGreen=ledGreen;
     this->ledRed=ledRed;
@@ -40,6 +42,10 @@ Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed){
     this->nf.setTarget(this);
     this->nf.setDnd(true);
     this->nf.setId((Event::evID)evNotify);
+
+    t=(struct k_timer*) k_malloc(sizeof(struct k_timer));
+    k_timer_init(t, &Dial::onTimeout, NULL);
+    k_timer_user_data_set(t,&nf);
 }
 Dial::~Dial(){}
 
@@ -133,11 +139,12 @@ bool Dial::processEvent(Event* e){
                 listenOnDigits=true;
                 if(number.length()>=4){
                     printk("timer startet");
-                    k_timer_start(t,K_MSEC(200), K_MSEC(200)); 
+                    k_timer_start(t,K_MSEC(5000), K_MSEC(0));
                 }
                 break;
             case ST_VALIDATEDIGIT:
                 printk("ST_VALIDATEDIGIT\n");
+                k_timer_stop(t);
                 listenOnDigits=false;
                 for(string *emergencyNumber: emergencyNumbers){
                     if(emergencyNumber[0]==number){
