@@ -50,7 +50,10 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                         {"144","Sanität"},
                                         {"1414","REGA"},
                                         {"145","Toxinfo"}};
-
+        struct k_timer* t;
+        static void onTimeout(struct k_timer* t);
+        
+        
 };
 
 #endif

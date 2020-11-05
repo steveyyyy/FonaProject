@@ -1,6 +1,12 @@
 #include "dial.h"
 
+void Dial::onTimeout(struct k_timer* t){
+    printk("timer over");
+}
+
 Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed){
+
+    k_timer_init(t, &Dial::onTimeout, NULL);
 
     this->ledGreen=ledGreen;
     this->ledRed=ledRed;
@@ -65,7 +71,11 @@ void Dial::startBehaviour(){
     XF::getInstance()->pushEvent(&in);
 }
 
-bool Dial::processEvent(Event* e){    
+bool Dial::processEvent(Event* e){
+    //t = (struct k_timer*) k_malloc(sizeof(struct k_timer));
+    
+    //k_timer_user_data_set(t,e);
+    //k_timer_start(t,K_MSEC(e->getDelay()), K_MSEC(0));    
     DIALERSTATE oldState=state;
     bool processed=false;
     switch(state){
@@ -121,6 +131,10 @@ bool Dial::processEvent(Event* e){
                 ledRed->on();
                 printk("ST_DIALING\n");
                 listenOnDigits=true;
+                if(number.length()>=4){
+                    printk("timer startet");
+                    k_timer_start(t,K_MSEC(200), K_MSEC(200)); 
+                }
                 break;
             case ST_VALIDATEDIGIT:
                 printk("ST_VALIDATEDIGIT\n");
