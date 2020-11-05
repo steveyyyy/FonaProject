@@ -65,7 +65,7 @@ void Dial::startBehaviour(){
     XF::getInstance()->pushEvent(&in);
 }
 
-bool Dial::processEvent(Event* e){
+bool Dial::processEvent(Event* e){    
     DIALERSTATE oldState=state;
     bool processed=false;
     switch(state){
@@ -85,6 +85,9 @@ bool Dial::processEvent(Event* e){
             }
             if(e->getId()==(Event::evID)evOnDigit){
                 state=ST_VALIDATEDIGIT;     
+            }
+            if(e->getId()==(Event::evID)evHookDown){
+                state=ST_WAITHOOKUP;     
             }
             break;
         case ST_VALIDATEDIGIT:
@@ -127,7 +130,7 @@ bool Dial::processEvent(Event* e){
                         XF::getInstance()->pushEvent(&nf);
                     }
                 }
-                if(number.length()==10&&number[0]==0&&number[1]!=0){
+                if(number.length()==10&&number[0]=='0'&&number[1]!='0'){
                     XF::getInstance()->pushEvent(&nf);
                 }
                 else{
