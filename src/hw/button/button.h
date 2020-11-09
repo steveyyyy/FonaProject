@@ -44,7 +44,8 @@ public:
 private:
     GPI* pin;                                /**< General Purpose Input pin */
     BUTTONSTATES state;                     /**< State of button */
-    Event ev;                               /**< event */
+    Event ev;
+    Event tm;                               /**< event */
     vector<IButtonObserver*> subscribers;   /**< subscriber list */
 };
 

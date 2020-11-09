@@ -15,6 +15,8 @@ Button::Button(GPI* pin)
     this->state = ST_INIT;
     this->ev.setTarget(this);
     this->ev.setDnd(1);
+    this->tm.setTarget(this);
+    this->tm.setDnd(1);
 }
 
 /**
@@ -168,9 +170,9 @@ bool Button::processEvent(Event* e)
             break;
             case ST_DEBOUNCE:
                 printk("DEBOUNCE\n");
-                ev.setId(Event::evTimeout);
-                ev.setDelay(DEBOUNCEDELAY);
-                XF::getInstance()->pushEvent(&ev);
+                tm.setId(Event::evTimeout);
+                tm.setDelay(DEBOUNCEDELAY);
+                XF::getInstance()->pushEvent(&tm);
             break;
             case ST_DECIDE:
                 printk("DECIDE\n");
