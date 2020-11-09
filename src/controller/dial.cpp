@@ -137,7 +137,7 @@ bool Dial::processEvent(Event* e){
                 ledRed->on();
                 printk("ST_DIALING\n");
                 listenOnDigits=true;
-                if(number.length()>=4){
+                if(number.length()>=3){
                     printk("timer startet\n");
                     k_timer_start(t,K_MSEC(5000), K_MSEC(0));
                 }
