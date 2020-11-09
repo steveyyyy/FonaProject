@@ -1,11 +1,10 @@
 #include "dial.h"
 
 void Dial::onTimeout(struct k_timer* t){
-    printk("timer over");
+    printk("timer over\n");
     Event* nf;
     nf = (Event*) k_timer_user_data_get(t);
     XF::getInstance()->pushEvent(nf);
-    //k_timer_stop(t);
 }
 
 Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed){
@@ -77,11 +76,7 @@ void Dial::startBehaviour(){
     XF::getInstance()->pushEvent(&in);
 }
 
-bool Dial::processEvent(Event* e){
-    //t = (struct k_timer*) k_malloc(sizeof(struct k_timer));
-    
-    //k_timer_user_data_set(t,e);
-    //k_timer_start(t,K_MSEC(e->getDelay()), K_MSEC(0));    
+bool Dial::processEvent(Event* e){  
     DIALERSTATE oldState=state;
     bool processed=false;
     switch(state){
@@ -116,6 +111,11 @@ bool Dial::processEvent(Event* e){
             break;
         case ST_NOTIFY:
             if(e->getId()==Event::evDefault){
+                state=ST_WAITHOOKDOWN;  
+            }
+            break;
+        case ST_WAITHOOKDOWN:
+            if(e->getId()==(Event::evID)evHookDown){
                 state=ST_WAITHOOKUP;     
             }
             break;
@@ -138,7 +138,7 @@ bool Dial::processEvent(Event* e){
                 printk("ST_DIALING\n");
                 listenOnDigits=true;
                 if(number.length()>=4){
-                    printk("timer startet");
+                    printk("timer startet\n");
                     k_timer_start(t,K_MSEC(5000), K_MSEC(0));
                 }
                 break;
@@ -166,6 +166,9 @@ bool Dial::processEvent(Event* e){
                 printk(number.c_str());
                 printk("\n");
                 XF::getInstance()->pushEvent(&ev);
+                break;
+            case ST_WAITHOOKDOWN:
+                printk("ST_WAITHOOKDOWN\n");
                 break;
         }
     }
