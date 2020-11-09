@@ -23,7 +23,8 @@ public:
 private:
     LED* led;
     typedef enum BLINKER_STATES{ ST_NONE, ST_INIT, ST_ON, ST_OFF }BLINKER_STATES;   /**< blinker states */
-    Event event;                                                                    /**< event */
+    Event in;
+    Event tm;
     BLINKER_STATES state;                                                           /**< state of blinker */
     int blinkDelayOn, blinkDelayOff;                                                /**< on/off delays */
     bool diverseBlink;                                                              /**< differ between regular or different on/off timings */

@@ -1,16 +1,20 @@
 #include "blinker.h"
 
 Blinker::Blinker(int blinkDelay) {
-    event.setTarget(this);
-    event.setDnd(1);
+    in.setTarget(this);
+    in.setDnd(1);
+    tm.setTarget(this);
+    tm.setDnd(1);
     state = ST_INIT;
     blinkDelayOn = blinkDelayOff = blinkDelay;
     diverseBlink = 0;
 }
 
 Blinker::Blinker(int blinkDelayOn, int blinkDelayOff) {
-    event.setTarget(this);
-    event.setDnd(1);
+    in.setTarget(this);
+    in.setDnd(1);
+    tm.setTarget(this);
+    tm.setDnd(1);
     state = ST_INIT;
     this->blinkDelayOn = blinkDelayOn;
     this->blinkDelayOff = blinkDelayOff;
@@ -23,18 +27,18 @@ Blinker::~Blinker() {
 
 void Blinker::start() {
     this->state = ST_INIT;
-    event.setId(Event::evInitial);
-    event.setDelay(0);
-    XF::getInstance()->pushEvent(&event);
+    in.setId(Event::evInitial);
+    in.setDelay(0);
+    XF::getInstance()->pushEvent(&in);
 }
 
 void Blinker::stop() {
     this->state = ST_OFF;
     this->led->off();
     printk("LED OFF\n");
-    event.setId(Event::evInitial);
-    event.setDelay(0);
-    XF::getInstance()->pushEvent(&event);
+    in.setId(Event::evInitial);
+    in.setDelay(0);
+    XF::getInstance()->pushEvent(&in);
 }
 
 void Blinker::setDelayOn(int delay) {
@@ -91,16 +95,16 @@ bool Blinker::processEvent(Event* e) {
         case ST_ON:
             led->on();
             printk("LED ON\n");
-            event.setId(Event::evTimeout);
-            event.setDelay(blinkDelayOn);
-            XF::getInstance()->pushEvent(&event);
+            tm.setId(Event::evTimeout);
+            tm.setDelay(blinkDelayOn);
+            XF::getInstance()->pushEvent(&tm);
             break;
         case ST_OFF:
             led->off();
             printk("LED OFF\n");
-            event.setId(Event::evTimeout);
-            event.setDelay(blinkDelayOff);
-            XF::getInstance()->pushEvent(&event);
+            tm.setId(Event::evTimeout);
+            tm.setDelay(blinkDelayOff);
+            XF::getInstance()->pushEvent(&tm);
             break;
         }
         return true;
@@ -110,7 +114,7 @@ bool Blinker::processEvent(Event* e) {
 
 void Blinker::startBehaviour() {
     printk("starting behaviour of blinker...\n");
-    event.setId(Event::evInitial);
-    event.setDelay(0);
-    XF::getInstance()->pushEvent(&event);
+    in.setId(Event::evInitial);
+    in.setDelay(0);
+    XF::getInstance()->pushEvent(&in);
 }
