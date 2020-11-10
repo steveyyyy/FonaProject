@@ -48,6 +48,10 @@ Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed){
 }
 Dial::~Dial(){}
 
+void Dial::addUART(UART* uart1){
+    this->uart1=uart1;
+}
+
 string Dial::getNumber(){
     return this->number;
 }
@@ -83,6 +87,7 @@ bool Dial::processEvent(Event* e){
         case ST_INIT:
             if (e->getId() == Event::evInitial){
                 this->state = ST_WAITHOOKUP;
+                uart1->uartSend("sdlkjsd");
             }
             break;
         case ST_WAITHOOKUP:

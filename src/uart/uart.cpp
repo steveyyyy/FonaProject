@@ -1,14 +1,17 @@
 #include "uart.h"
 
-UART::UART(){
+UART::UART(const char* deviceBinding,int baudrate){
     uart_dev = NULL;
-    baudrate = 115200;
-    message="";    
+    this->baudrate = baudrate;
+    message="";
+    this->deviceBinding=deviceBinding;
 }
+
+UART::~UART(){};
 
 void UART::initHW(){
     //Get device
-    uart_dev = device_get_binding("UART_1");
+    uart_dev = device_get_binding(deviceBinding);
 	if (!uart_dev) {
 		printk("Cannot get UART device\n");
 	}
@@ -26,11 +29,6 @@ void UART::initHW(){
 	}
 }
 
-void UART::setBaudrate(int baudrate)
-{
-    this->baudrate = baudrate;
-}
-
 bool UART::enableRXInterrupt(){
     bool processed=false;
     if(!uart_dev){
@@ -38,7 +36,7 @@ bool UART::enableRXInterrupt(){
     }
     else{
         processed=true;
-        uart_irq_callback_set(uart_dev, UART::uartRecive);
+        uart_irq_callback_set(uart_dev, uartReceive);
         uart_irq_rx_enable(uart_dev);
         //printk("UART device loaded... [OK]");
     }
@@ -54,8 +52,9 @@ void UART::uartSend(const char* txData)
     };
 }
 
-void UART::uartRecive(struct device* dev){
+void UART::uartReceive(struct device *dev){
     u8_t recvData = 0;
+
     if (!uart_irq_update(dev))
     {
         printk("retval should always be 1");
@@ -64,16 +63,13 @@ void UART::uartRecive(struct device* dev){
     if (uart_irq_rx_ready(dev))
     {
         uart_fifo_read(dev,&recvData,1);
-        getInstance()->message += recvData;
+        //message += recvData;
+        printk("testetstetstetstetstetstetstets");
         if(recvData == '\n'){
-            getInstance()->notify();
-            printk("%c",recvData);
+            //user_data->notify();
+            //printk(user_data->message);
         }
     }
-}
-
-UART* UART::getInstance(){
-    return &uart;
 }
 
 void UART::subscribe(IUARTObserver* subscriber) 

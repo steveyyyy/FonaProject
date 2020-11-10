@@ -6,6 +6,7 @@
 #include "../hw/led/led.h"
 #include "../hw/button/button.h"
 #include "../controller/dial.h"
+#include "../uart/uart.h"
 
 class Factory
 {
@@ -26,6 +27,8 @@ public:
     static Button* switchhook(){return &_switchhook;}
     static Dial* dialer(){return &_dialer;}
 
+    static UART* uart1(){return &_uart1;}
+
     static XF* xf(){return XF::getInstance();}
     static IntManager* im(){return IntManager::getInstance();}
     
@@ -45,6 +48,8 @@ private:
     static Button _switchhook;
 
     static Dial _dialer;
+
+    static UART _uart1;
 };
 
 #endif

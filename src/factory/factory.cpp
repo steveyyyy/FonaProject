@@ -12,6 +12,8 @@ Button Factory::_switchhook(&_pinSwitchhook);
 
 Dial Factory::_dialer(&_switchhook,&_ledGreen,&_ledRed);
 
+UART Factory::_uart1("UART_1", 115200);
+
 
 Factory::Factory(/* args */) {
     
@@ -34,6 +36,10 @@ void Factory::init() {
     pPulse()->initHW();
     pSwitchhook()->initHW();
 
+    //initialize uart
+    uart1()->initHW();
+    //enable uart interrupt
+    uart1()->enableRXInterrupt();
 
     
 
@@ -69,6 +75,7 @@ void Factory::build() {
     // blinkerA()->setLed(ledGreen());
     switchhook()->subscribe(dialer());
     rotary()->subscribe(dialer());
+    dialer()->addUART(uart1());
     
 }
 

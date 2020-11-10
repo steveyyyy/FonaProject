@@ -4,7 +4,6 @@
 #include <drivers/uart.h>
 #include <vector>
 #include <algorithm>
-#include <string>
 #include <cstring>
 
 using namespace std;
@@ -15,16 +14,14 @@ class UART
         class IUARTObserver
         {
             public:
-            virtual void onMesssage(string message);
+            virtual void onMesssage(const char* message);
         };
-        UART();
+        UART(const char* deviceBinding,int baudrate);
         ~UART();
-        static UART* getInstance();
         void initHW();
-        void setBaudrate(int baudrate);
 
         void uartSend(const char* txData);
-        static void uartRecive(struct device* dev);
+        
         bool enableRXInterrupt();
 
         void subscribe(IUARTObserver* subscriber);
@@ -35,11 +32,11 @@ class UART
         vector<IUARTObserver*> subscribers;
         struct device* uart_dev;  /**< device structur driver */ 
         struct uart_config uart_cfg;    /**< UART configuration */
+        const char* deviceBinding;
         int baudrate;
-        string message;
-        static UART uart;
+        const char* message;
 
-    
+        static void uartReceive(struct device *dev);
 };
 
 #endif
