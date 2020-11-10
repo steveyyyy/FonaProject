@@ -87,7 +87,6 @@ bool Dial::processEvent(Event* e){
         case ST_INIT:
             if (e->getId() == Event::evInitial){
                 this->state = ST_WAITHOOKUP;
-                uart1->uartSend("sdlkjsd");
             }
             break;
         case ST_WAITHOOKUP:
@@ -141,6 +140,8 @@ bool Dial::processEvent(Event* e){
             case ST_DIALING:
                 ledRed->on();
                 printk("ST_DIALING\n");
+
+                uart1->uartSend("3690");
                 listenOnDigits=true;
                 if(number.length()>=3){
                     printk("timer startet\n");

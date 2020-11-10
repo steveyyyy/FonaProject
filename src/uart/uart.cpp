@@ -36,7 +36,8 @@ bool UART::enableRXInterrupt(){
     }
     else{
         processed=true;
-        uart_irq_callback_set(uart_dev, uartReceive);
+        //uart_irq_callback_set(uart_dev, uartReceive);
+        uart_irq_callback_user_data_set(uart_dev, uartReceive,this);
         uart_irq_rx_enable(uart_dev);
         //printk("UART device loaded... [OK]");
     }
@@ -52,22 +53,28 @@ void UART::uartSend(const char* txData)
     };
 }
 
-void UART::uartReceive(struct device *dev){
+void UART::uartReceive(void* data){
     u8_t recvData = 0;
-
-    if (!uart_irq_update(dev))
+    UART* thisUART = (UART*)data;
+    // thisUART->message="kasjdnfkasdjfn";
+    // printk(thisUART->message);
+    // printk("laaaaaaaaaaaaaaaaaaaa");
+    if (!uart_irq_update(thisUART->uart_dev))
     {
         printk("retval should always be 1");
         return;
     }
-    if (uart_irq_rx_ready(dev))
+    if (uart_irq_rx_ready(thisUART->uart_dev))
     {
-        uart_fifo_read(dev,&recvData,1);
-        //message += recvData;
-        printk("testetstetstetstetstetstetstets");
+        uart_fifo_read(thisUART->uart_dev,&recvData,1);
+        thisUART->message += recvData;
+        printk(thisUART->message);
+        
+                    //printk(thisUART->message);
+
         if(recvData == '\n'){
-            //user_data->notify();
-            //printk(user_data->message);
+            thisUART->notify();
+            printk(thisUART->message);
         }
     }
 }
