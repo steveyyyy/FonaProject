@@ -21,7 +21,6 @@ class UART
         ~UART();
         static UART* getInstance();
         void initHW();
-        void checkConfig();
         void setBaudrate(int baudrate);
 
         void uartSend(const char* txData);
@@ -36,7 +35,6 @@ class UART
         vector<IUARTObserver*> subscribers;
         struct device* uart_dev;  /**< device structur driver */ 
         struct uart_config uart_cfg;    /**< UART configuration */
-        struct uart_config uart_cfg_check;  /**< UART configuration check */
         int baudrate;
         string message;
         static UART uart;

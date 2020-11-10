@@ -24,18 +24,11 @@ void UART::initHW(){
 	if (ret != 0) {
 		printk("Cannot configure UART device\n");
 	}
-    checkConfig();
 }
 
 void UART::setBaudrate(int baudrate)
 {
     this->baudrate = baudrate;
-}
-
-void UART::checkConfig(){
- 	if (uart_config_get(uart_dev, &uart_cfg_check) != 0) {
-		printk("Cannot read config of UART device\n");
-	}
 }
 
 bool UART::enableRXInterrupt(){
