@@ -1,0 +1,4 @@
+		&usart1 {
+			status = "ok";
+			current-speed = <38400>;
+		};
