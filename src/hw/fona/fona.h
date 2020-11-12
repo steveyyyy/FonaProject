@@ -1,5 +1,5 @@
 #include "../../xf/xf.h"
-
+#include "../../uart/uart.h"
 #include "../../gpio/intmanager.h"
 #include <vector>
 #include <algorithm>
@@ -8,7 +8,7 @@
 #define FONA_ONCE
 
 
-class Fona : public IReactive
+class Fona : public UART::IUARTObserver, public IReactive
 {
 public:
 
@@ -30,11 +30,13 @@ public:
     void subscribe(IFonaObserver* subscriber);
     void unsubscribe(IFonaObserver* subscriber);
     void notify();
+    void onMessage(u8_t character);
 
 private:                              
     FONASTATES state;                     
     Event ev;                               
     vector<IFonaObserver*> subscribers;
+    string message;
 };
 
 #endif

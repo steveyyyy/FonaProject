@@ -94,6 +94,6 @@ void UART::notify()
     vector<IUARTObserver*>::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); ++it)
     {
-        (*it)->onMesssage(character);
+        (*it)->onMessage(character);
     }
 }

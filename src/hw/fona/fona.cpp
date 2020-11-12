@@ -9,20 +9,18 @@ Fona::~Fona()
 {
 }
 
-/**
- * @brief Initialize the buttons pin and subscribe to Interrupt Manager
- * 
- */
 void Fona::initHW()
 {
     
 }
 
-/**
- * @brief Add an Observer to this button
- * 
- * @param subscriber Button observer
- */
+void Fona::onMessage(u8_t character){
+    message +=(char)character;
+    if(character=='\n'){
+        //event auslösen
+    }
+}
+
 void Fona::subscribe(IFonaObserver* subscriber)
 {
     vector<IFonaObserver*>::iterator it;
@@ -33,11 +31,6 @@ void Fona::subscribe(IFonaObserver* subscriber)
     }
 }
 
-/**
- * @brief Remove an Observer from this button
- * 
- * @param subscriber Button observer
- */
 void Fona::unsubscribe(IFonaObserver* subscriber)
 {
     vector<IFonaObserver*>::iterator it;
@@ -48,10 +41,6 @@ void Fona::unsubscribe(IFonaObserver* subscriber)
     }
 }
 
-/**
- * @brief Notify every subscriber that the state of Button has changed
- * 
- */
 void Fona::notify()
 {
     vector<IFonaObserver*>::iterator it;

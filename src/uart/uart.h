@@ -14,7 +14,7 @@ class UART
         class IUARTObserver
         {
             public:
-            virtual void onMesssage(u8_t character);
+            virtual void onMessage(u8_t character)=0;
         };
         UART(const char* deviceBinding,int baudrate);
         ~UART();
