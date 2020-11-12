@@ -141,7 +141,7 @@ bool Dial::processEvent(Event* e){
                 ledRed->on();
                 printk("ST_DIALING\n");
 
-                uart1->uartSend("3690");
+                uart1->uartSend("abcdefghijklomopqkjsdnflksjndfksjdnfksjnf\n");
                 listenOnDigits=true;
                 if(number.length()>=3){
                     printk("timer startet\n");

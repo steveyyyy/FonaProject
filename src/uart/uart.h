@@ -14,7 +14,7 @@ class UART
         class IUARTObserver
         {
             public:
-            virtual void onMesssage(const char* message);
+            virtual void onMesssage(u8_t character);
         };
         UART(const char* deviceBinding,int baudrate);
         ~UART();
@@ -33,7 +33,7 @@ class UART
         struct uart_config uart_cfg;    /**< UART configuration */
         const char* deviceBinding;
         int baudrate;
-        const char* message;
+        u8_t character;
 
         static void uartReceive(void* data);
 };
