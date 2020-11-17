@@ -21,7 +21,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                    ST_WAITHOOKDOWN
                                  } DIALERSTATE;
 
-        typedef enum dialerEvents{  evHookUp=200,
+        typedef enum dialerEvents{  evHookUp=300,
                                     evHookDown,
                                     evOnDigit,
                                     evNotify,

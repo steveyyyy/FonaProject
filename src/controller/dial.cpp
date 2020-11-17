@@ -150,6 +150,7 @@ bool Dial::processEvent(Event* e){
                 break;
             case ST_VALIDATEDIGIT:
                 printk("ST_VALIDATEDIGIT\n");
+                //button can be added to stop timer
                 k_timer_stop(t);
                 listenOnDigits=false;
                 for(string *emergencyNumber: emergencyNumbers){
