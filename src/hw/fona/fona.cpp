@@ -60,10 +60,48 @@ bool Fona::processEvent(Event* e)
     switch (this->state)
     {
         case ST_INIT:
-        if (e->getId() == Event::evInitial)
-        {
-            //this->state = ST_DECIDE;
-        }
+            if (e->getId() == Event::evInitial)
+            {
+                this->state = ST_SETUP;
+            }
+        break;
+        case ST_SETUP:
+            if (e->getId() == (Event::evID)evBaudCheck)
+            {
+                this->state = ST_WAITOK;
+            }
+            break;
+        case ST_WAITOK:
+            if (e->getId() == Event::evDefault)
+            {
+                this->state = ST_IDLE;
+            }
+            if (e->getId() == (Event::evID)evError)
+            {
+                this->state = ST_SETUP;
+            }
+        break;
+        case ST_IDLE:
+            if (e->getId() == (Event::evID)evCommand)
+            {
+                this->state = ST_COMMAND;
+            }
+            if (e->getId() == (Event::evID)evResponse)
+            {
+                this->state = ST_NOTIFY;
+            }
+        break;
+        case ST_COMMAND:
+            if (e->getId() == (Event::evID)evResponse)
+            {
+                this->state = ST_NOTIFY;
+            }
+        break;
+        case ST_NOTIFY:
+            if (e->getId() == Event::evDefault)
+            {
+                this->state = ST_IDLE;
+            }
         break;
     }
 
@@ -73,7 +111,22 @@ bool Fona::processEvent(Event* e)
         switch (this->state)
         {
             case ST_INIT:
-                printk("INIT\n");
+                printk("ST_INIT\n");
+            break;
+            case ST_SETUP:
+                printk("ST_SETUP\n");
+            break;
+            case ST_WAITOK:
+                printk("ST_WAITOK\n");
+            break;
+            case ST_IDLE:
+                printk("ST_IDLE\n");
+            break;
+            case ST_COMMAND:
+                printk("ST_COMMAND\n");
+            break;
+            case ST_NOTIFY:
+                printk("ST_NOTIFY\n");
             break;
         }
     }

@@ -18,8 +18,19 @@ public:
         virtual void onResponse(string response) = 0;
     };
 
-    typedef enum FONASTATES {    ST_INIT,
+    typedef enum fonaEvents{    evBaudCheck=200,
+                                evError,
+                                evCommand,
+                                evResponse,
+                                evNotify
+                             } fonaEvents;
 
+    typedef enum FONASTATES {   ST_INIT,
+                                ST_SETUP,
+                                ST_WAITOK,
+                                ST_IDLE,
+                                ST_COMMAND,
+                                ST_NOTIFY
                             } FONASTATES; 
 
     Fona();
