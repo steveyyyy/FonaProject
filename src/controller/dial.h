@@ -8,8 +8,6 @@
 #include "../hw/button/button.h"
 #include "../hw/led/led.h"
 
-#include "../uart/uart.h"
-
 class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Button::IButtonObserver
 {
     public:
@@ -34,9 +32,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         void onDigit(int digit);
         bool processEvent(Event* event);
         void startBehaviour();
-        void addUART(UART* uart1);
     private:
-        UART* uart1;
         Button* switchhook;
         LED* ledGreen;
         LED* ledRed;

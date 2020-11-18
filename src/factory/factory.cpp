@@ -74,9 +74,7 @@ void Factory::build() {
     // Nothing to do
     // blinkerA()->setLed(ledGreen());
     switchhook()->subscribe(dialer());
-    rotary()->subscribe(dialer());
-    dialer()->addUART(uart1());
-    
+    rotary()->subscribe(dialer()); 
 }
 
 void Factory::start() {

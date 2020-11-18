@@ -48,10 +48,6 @@ Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed){
 }
 Dial::~Dial(){}
 
-void Dial::addUART(UART* uart1){
-    this->uart1=uart1;
-}
-
 string Dial::getNumber(){
     return this->number;
 }
@@ -140,8 +136,6 @@ bool Dial::processEvent(Event* e){
             case ST_DIALING:
                 ledRed->on();
                 printk("ST_DIALING\n");
-
-                uart1->uartSend("abcdefghijklomopqkjsdnflksjndfksjdnfksjnf\n");
                 listenOnDigits=true;
                 if(number.length()>=3){
                     printk("timer startet\n");
