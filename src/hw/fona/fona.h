@@ -18,8 +18,7 @@ public:
         virtual void onResponse(string response) = 0;
     };
 
-    typedef enum fonaEvents{    evBaudCheck=200,
-                                evError,
+    typedef enum fonaEvents{    evError=200,
                                 evCommand,
                                 evResponse,
                                 evNotify
@@ -33,7 +32,7 @@ public:
                                 ST_NOTIFY
                             } FONASTATES; 
 
-    Fona();
+    Fona(UART* uart);
     ~Fona();
     void initHW();
     bool processEvent(Event* e);
@@ -42,10 +41,16 @@ public:
     void unsubscribe(IFonaObserver* subscriber);
     void notify();
     void onMessage(u8_t character);
+    void send(string command);
 
-private:                              
+private:
+    UART* uart;                              
     FONASTATES state;                     
-    Event ev;                               
+    Event ev;       //Default event
+    Event evIni;    //Inital event
+    Event evErr;    //Error event
+    Event evCmd;    //Command event
+    Event evRp;     //Response event                             
     vector<IFonaObserver*> subscribers;
     string message;
 };

@@ -1,23 +1,60 @@
 #include "fona.h"
 
-Fona::Fona()
+Fona::Fona(UART* uart)
 {
+    this->uart=uart;
 
+    this->ev.setTarget(this);
+    this->ev.setDnd(true);
+    this->ev.setId(Event::evDefault);
+
+    this->evIni.setTarget(this);
+    this->evIni.setDnd(true);
+    this->evIni.setId(Event::evInitial);
+
+    this->evErr.setTarget(this);
+    this->evErr.setDnd(true);
+    this->evErr.setId((Event::evID)evError);
+
+    this->evCmd.setTarget(this);
+    this->evCmd.setDnd(true);
+    this->evCmd.setId((Event::evID)evCommand);
+
+    this->evRp.setTarget(this);
+    this->evRp.setDnd(true);
+    this->evRp.setId((Event::evID)evResponse);
 }
 
-Fona::~Fona()
-{
-}
+Fona::~Fona(){}
 
 void Fona::initHW()
 {
-    
+    uart->subscribe(this);
 }
 
 void Fona::onMessage(u8_t character){
     message +=(char)character;
     if(character=='\n'){
         //event auslösen
+        if(state==ST_SETUP){
+            if(message=="OK\n"){
+                XF::getInstance()->pushEvent(&ev);
+            }
+            message="";
+        }
+        if(state==ST_COMMAND){
+
+        }
+        if(state==ST_IDLE){
+
+        }
+    }
+}
+
+void Fona::send(string message){
+    if(state==ST_IDLE){
+        uart->uartSend(message.c_str());
+        XF::getInstance()->pushEvent(&evCmd);
     }
 }
 
@@ -66,7 +103,7 @@ bool Fona::processEvent(Event* e)
             }
         break;
         case ST_SETUP:
-            if (e->getId() == (Event::evID)evBaudCheck)
+            if (e->getId() == Event::evDefault)
             {
                 this->state = ST_WAITOK;
             }
@@ -115,6 +152,8 @@ bool Fona::processEvent(Event* e)
             break;
             case ST_SETUP:
                 printk("ST_SETUP\n");
+                XF::getInstance()->pushEvent(&ev);
+                uart->uartSend("AT");
             break;
             case ST_WAITOK:
                 printk("ST_WAITOK\n");
