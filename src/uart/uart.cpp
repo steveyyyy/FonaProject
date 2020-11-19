@@ -97,3 +97,18 @@ void UART::notify()
         (*it)->onMessage(character);
     }
 }
+
+int UART::getBaudrate(){
+    return this->baudrate;
+}
+void UART::setBaudrate(int baudrate){
+    this->baudrate = baudrate;
+    updateBaudrate();
+}
+void UART::updateBaudrate(){
+    uart_cfg.baudrate = baudrate;
+    int ret = uart_configure(uart_dev, &uart_cfg);
+	if (ret != 0) {
+		printk("Cannot configure UART device\n");
+	}
+}

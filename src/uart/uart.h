@@ -27,6 +27,10 @@ class UART
         void subscribe(IUARTObserver* subscriber);
         void unsubscribe(IUARTObserver* subscriber);
         void notify();
+        int getBaudrate();
+        void setBaudrate(int baudrate);
+        void updateBaudrate();
+
     protected:
         vector<IUARTObserver*> subscribers;
         struct device* uart_dev;  /**< device structur driver */ 
