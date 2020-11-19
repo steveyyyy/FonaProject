@@ -14,3 +14,7 @@ void Display::clearDispaly(){
     uart->uartSend((char *)command);
     uart->uartSend((char *)(u8_t)1);
 }
+
+void Display::changeBaudrate(int baudrate){
+
+}
