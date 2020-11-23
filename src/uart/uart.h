@@ -33,7 +33,7 @@ class UART
 
     protected:
         vector<IUARTObserver*> subscribers;
-        struct device* uart_dev;  /**< device structur driver */ 
+        const struct device* uart_dev;  /**< device structur driver */ 
         struct uart_config uart_cfg;    /**< UART configuration */
         const char* deviceBinding;
         int baudrate;

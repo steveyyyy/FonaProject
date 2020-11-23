@@ -30,7 +30,7 @@ public:
     typedef struct PinPort
     {
         u8_t pin;
-        struct device* dev;
+        const struct device* dev;
         bool operator==(const PinPort& other) const
         {
             return ((pin == other.pin) && (dev == other.dev));
@@ -59,7 +59,7 @@ public:
 
     typedef struct cbPinMap
     {
-        struct device* dev;
+        const struct device* dev;
         struct gpio_callback cb;
         u32_t pinMap;
         cbPinMap() : pinMap(0) {};
@@ -81,7 +81,7 @@ public:
     private:
     IntManager();
     virtual ~IntManager();
-    static void onInterrupt(struct device* dev, struct gpio_callback* cb, u32_t pins);
+    static void onInterrupt(const struct device* dev, struct gpio_callback* cb, u32_t pins);
 
     //the private data
     private: 

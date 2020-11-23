@@ -202,7 +202,7 @@ IntManager* IntManager::getInstance()
  * @param cb Callback
  * @param pins pins
  */
-void IntManager::onInterrupt(struct device* dev, struct gpio_callback* cb, u32_t pins)
+void IntManager::onInterrupt(const struct device* dev, struct gpio_callback* cb, u32_t pins)
 {
     int key = irq_lock();
     vector<u8_t>::size_type i;

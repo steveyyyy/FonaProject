@@ -65,7 +65,7 @@ int GPIO::getUId()
  * 
  * @return Driver as a device structure
  */
-struct device* GPIO::getDriver()
+const struct device* GPIO::getDriver()
 {
     return this->driver;
 }

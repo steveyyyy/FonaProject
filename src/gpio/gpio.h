@@ -19,12 +19,12 @@ public:
     enum PINSTATE {PIN_OFF=0, PIN_ON=1}; /**< enum state of pin (on/off)*/
     int getPin();
     int getUId();
-    struct device* getDriver();
+    const struct device* getDriver();
 
 protected:
     u8_t id;                /**< unique ID */
     int pin;                /**< pin number */
-    struct device* driver;  /**< device structur driver */ 
+    const struct device* driver;  /**< device structur driver */ 
     char* port;             /**< port name */
     int config;             /**< configuration number */
     static u8_t uid;        /**< unique ID generator */
