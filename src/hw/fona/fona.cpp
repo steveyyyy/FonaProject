@@ -3,6 +3,7 @@
 Fona::Fona(UART* uart)
 {
     this->uart=uart;
+    this->message="";
 
     this->ev.setTarget(this);
     this->ev.setDnd(true);
@@ -33,26 +34,26 @@ void Fona::initHW()
 }
 
 void Fona::onMessage(u8_t character){
-    message +=(char)character;
-    if(character=='\n'){
-        //event auslösen
-        if(state==ST_SETUP){
-            if(message=="OK\n"){
-                XF::getInstance()->pushEvent(&ev);
-            }
+    printk("%c",character);
+    message += character;
+    //event auslösen
+    if(state==ST_WAITOK){
+        if(message=="\r\nOK"){
+            XF::getInstance()->pushEvent(&ev);
             message="";
         }
-        if(state==ST_COMMAND){
+    }
+    else if(state==ST_COMMAND){
 
-        }
-        if(state==ST_IDLE){
+    }
+    else if(state==ST_IDLE){
 
-        }
     }
 }
 
 void Fona::send(string message){
-    if(state==ST_IDLE){
+    if(state==ST_IDLE||state==ST_WAITOK){
+        message += "\r";
         uart->uartSend(message.c_str());
         XF::getInstance()->pushEvent(&evCmd);
     }
@@ -86,7 +87,6 @@ void Fona::notify()
         // (*it)->onResponse();
     }
 }
-
 
 bool Fona::processEvent(Event* e)
 {
@@ -152,11 +152,13 @@ bool Fona::processEvent(Event* e)
             break;
             case ST_SETUP:
                 printk("ST_SETUP\n");
-                XF::getInstance()->pushEvent(&ev);
-                uart->uartSend("AT");
+                XF::getInstance()->pushEvent(&ev);               
             break;
             case ST_WAITOK:
                 printk("ST_WAITOK\n");
+                //dont send it here
+                send("ATE0");
+                send("AT");
             break;
             case ST_IDLE:
                 printk("ST_IDLE\n");
@@ -175,7 +177,7 @@ bool Fona::processEvent(Event* e)
 
 void Fona::startBehaviour()
 {
-    ev.setId(Event::evInitial);
-    ev.setDelay(0);
-    XF::getInstance()->pushEvent(&ev);
+    evIni.setId(Event::evInitial);
+    evIni.setDelay(0);
+    XF::getInstance()->pushEvent(&evIni);
 }

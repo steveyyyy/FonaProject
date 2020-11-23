@@ -8,8 +8,7 @@ RotaryDial::RotaryDial(GPI* active, GPI* number){
     this->active=active;
 
     delay=1;
-    //delay hannes=3
-    //delay stefan=1
+
     this->state = ST_INIT;
 
     this->ev.setTarget(this);
