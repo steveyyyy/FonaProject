@@ -53,17 +53,18 @@ void UART::uartSend(const char* txData)
     };
 }
 
-void UART::uartReceive(void* data){
+void UART::uartReceive(const struct device *uart_dev, void *data){
     uint8_t recvData = 0;
     UART* thisUART = (UART*)data;
-    if (!uart_irq_update(thisUART->uart_dev))
+    
+    if (!uart_irq_update(uart_dev))
     {
         printk("retval should always be 1");
         return;
     }
-    if (uart_irq_rx_ready(thisUART->uart_dev))
+    if (uart_irq_rx_ready(uart_dev))
     {
-        uart_fifo_read(thisUART->uart_dev,&recvData,1);
+        uart_fifo_read(uart_dev,&recvData,1);
         thisUART->character = (char)recvData;
         thisUART->notify();
     }

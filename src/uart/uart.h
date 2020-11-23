@@ -39,7 +39,7 @@ class UART
         int baudrate;
         u8_t character;
 
-        static void uartReceive(void* data);
+        static void uartReceive(const struct device *dev, void *data);
 };
 
 #endif
