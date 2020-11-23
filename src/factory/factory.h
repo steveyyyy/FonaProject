@@ -7,6 +7,7 @@
 #include "../hw/button/button.h"
 #include "../controller/dial.h"
 #include "../uart/uart.h"
+#include "../hw/fona/fona.h"
 
 class Factory
 {
@@ -29,6 +30,8 @@ public:
 
     static UART* uart1(){return &_uart1;}
 
+    static Fona* fona(){return &_fona;}
+
     static XF* xf(){return XF::getInstance();}
     static IntManager* im(){return IntManager::getInstance();}
     
@@ -50,6 +53,7 @@ private:
     static Dial _dialer;
 
     static UART _uart1;
+    static Fona _fona;
 };
 
 #endif

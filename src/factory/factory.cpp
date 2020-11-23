@@ -13,6 +13,7 @@ Button Factory::_switchhook(&_pinSwitchhook);
 Dial Factory::_dialer(&_switchhook,&_ledGreen,&_ledRed);
 
 UART Factory::_uart1("UART_1", 115200);
+Fona Factory::_fona(&_uart1);
 
 
 Factory::Factory(/* args */) {
@@ -68,6 +69,8 @@ void Factory::init() {
     ledRed()->initHW();
 
     switchhook()->initHW();
+
+    fona()->initHW();
 }
 
 void Factory::build() {
@@ -85,5 +88,6 @@ void Factory::start() {
 
     switchhook()->startBehaviour();
     dialer()->startBehaviour();
+    fona()->startBehaviour();
 }
 
