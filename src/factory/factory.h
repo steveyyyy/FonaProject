@@ -28,8 +28,6 @@ public:
     static Button* switchhook(){return &_switchhook;}
     static Dial* dialer(){return &_dialer;}
 
-    static UART* uart1(){return &_uart1;}
-
     static Fona* fona(){return &_fona;}
 
     static XF* xf(){return XF::getInstance();}
@@ -52,7 +50,6 @@ private:
 
     static Dial _dialer;
 
-    static UART _uart1;
     static Fona _fona;
 };
 

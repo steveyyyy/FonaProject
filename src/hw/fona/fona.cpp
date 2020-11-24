@@ -1,8 +1,7 @@
 #include "fona.h"
 
-Fona::Fona(UART* uart)
+Fona::Fona(const char* deviceBinding,int baudrate):UART(deviceBinding,baudrate)
 {
-    this->uart=uart;
     this->message="";
 
     this->ev.setTarget(this);
@@ -30,7 +29,6 @@ Fona::~Fona(){}
 
 void Fona::initHW()
 {
-    uart->subscribe(this);
 }
 
 void Fona::onMessage(u8_t character){
@@ -54,7 +52,7 @@ void Fona::onMessage(u8_t character){
 void Fona::send(string message){
     if(state==ST_IDLE||state==ST_WAITOK){
         message += "\r";
-        uart->uartSend(message.c_str());
+        //uart->uartSend(message.c_str());
         XF::getInstance()->pushEvent(&evCmd);
     }
 }

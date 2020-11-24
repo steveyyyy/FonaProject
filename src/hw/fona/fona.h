@@ -8,7 +8,7 @@
 #define FONA_ONCE
 
 
-class Fona : public UART::IUARTObserver, public IReactive
+class Fona : public IReactive, public UART
 {
 public:
 
@@ -32,7 +32,7 @@ public:
                                 ST_NOTIFY
                             } FONASTATES; 
 
-    Fona(UART* uart);
+    Fona(const char* deviceBinding,int baudrate);
     ~Fona();
     void initHW();
     bool processEvent(Event* e);
@@ -43,8 +43,7 @@ public:
     void onMessage(u8_t character);
     void send(string command);
 
-private:
-    UART* uart;                              
+private:                           
     FONASTATES state;                     
     Event ev;       //Default event
     Event evIni;    //Inital event

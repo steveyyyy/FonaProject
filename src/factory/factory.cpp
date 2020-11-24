@@ -12,8 +12,7 @@ Button Factory::_switchhook(&_pinSwitchhook);
 
 Dial Factory::_dialer(&_switchhook,&_ledGreen,&_ledRed);
 
-UART Factory::_uart1("UART_1", 115200);
-Fona Factory::_fona(&_uart1);
+Fona Factory::_fona("UART_1", 115200);
 
 
 Factory::Factory(/* args */) {
@@ -38,9 +37,9 @@ void Factory::init() {
     pSwitchhook()->initHW();
 
     //initialize uart
-    uart1()->initHW();
+    ////uart1()->initHW();
     //enable uart interrupt
-    uart1()->enableRXInterrupt();
+    ////uart1()->enableRXInterrupt();
 
     
 
