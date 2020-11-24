@@ -5,10 +5,11 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
+#include "../xf/xf.h"
 
 using namespace std;
 
-class UART
+class UART : public IReactive
 {
     public:
         class IUARTObserver
@@ -26,10 +27,13 @@ class UART
 
         void subscribe(IUARTObserver* subscriber);
         void unsubscribe(IUARTObserver* subscriber);
-        void notify();
+        void notify(u8_t character);
         int getBaudrate();
         void setBaudrate(int baudrate);
         void updateBaudrate();
+
+        bool processEvent(Event* e);
+        //void startBehaviour();
 
     protected:
         vector<IUARTObserver*> subscribers;
@@ -38,6 +42,8 @@ class UART
         const char* deviceBinding;
         int baudrate;
         u8_t character;
+
+        Event ev;
 
         static void uartReceive(const struct device *dev, void *data);
 };

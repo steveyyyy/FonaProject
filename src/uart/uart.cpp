@@ -5,6 +5,10 @@ UART::UART(const char* deviceBinding,int baudrate){
     this->baudrate = baudrate;
     character=0;
     this->deviceBinding=deviceBinding;
+
+    this->ev.setTarget(this);
+    this->ev.setDnd(true);
+    this->ev.setId(Event::evDefault);
 }
 
 UART::~UART(){};
@@ -66,8 +70,11 @@ void UART::uartReceive(const struct device *uart_dev, void *data){
     {
         uart_fifo_read(uart_dev,&recvData,1);
         thisUART->character = (char)recvData;
-        thisUART->notify();
-    }
+        //thisUART->notify();
+        XF::getInstance()->pushEvent(&thisUART->ev);
+        printk("%c",thisUART->character);
+    }  
+    //remove notify make statwe machine
 }
 
 void UART::subscribe(IUARTObserver* subscriber) 
@@ -90,7 +97,7 @@ void UART::unsubscribe(IUARTObserver* subscriber)
     }   
 }
 
-void UART::notify() 
+void UART::notify(u8_t character) 
 {
     vector<IUARTObserver*>::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); ++it)
@@ -112,4 +119,12 @@ void UART::updateBaudrate(){
 	if (ret != 0) {
 		printk("Cannot configure UART device\n");
 	}
+}
+bool UART::processEvent(Event* e){
+    bool processed=false;
+    if(ev.getId()==Event::evDefault){
+        notify(character);
+        processed=true;
+    }
+    return processed;
 }
