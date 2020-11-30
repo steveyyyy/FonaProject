@@ -52,7 +52,7 @@ void Fona::onMessage(u8_t character){
 void Fona::send(string message){
     if(state==ST_IDLE||state==ST_WAITOK){
         message += "\r";
-        //uart->uartSend(message.c_str());
+        uartSend(message.c_str());
         XF::getInstance()->pushEvent(&evCmd);
     }
 }

@@ -72,35 +72,6 @@ void UART::uartReceive(const struct device *uart_dev, void *data){
     //remove notify make statwe machine
 }
 
-void UART::subscribe(IUARTObserver* subscriber) 
-{
-    vector<IUARTObserver*>::iterator it;
-    it = find(subscribers.begin(), subscribers.end(), subscriber);
-    if (it == subscribers.end())
-    {
-        subscribers.push_back(subscriber);
-    }    
-}
-
-void UART::unsubscribe(IUARTObserver* subscriber) 
-{
-    vector<IUARTObserver*>::iterator it;
-    it = find(subscribers.begin(), subscribers.end(), subscriber);
-    if (it != subscribers.end())
-    {
-        subscribers.erase(it);
-    }   
-}
-
-void UART::notify(u8_t character) 
-{
-    vector<IUARTObserver*>::iterator it;
-    for (it = subscribers.begin(); it != subscribers.end(); ++it)
-    {
-        (*it)->onMessage(character);
-    }
-}
-
 int UART::getBaudrate(){
     return this->baudrate;
 }
