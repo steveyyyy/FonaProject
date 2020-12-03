@@ -3,7 +3,6 @@
 UART::UART(const char* deviceBinding,int baudrate){
     uart_dev = NULL;
     this->baudrate = baudrate;
-    character=0;
     this->deviceBinding=deviceBinding;
 }
 
@@ -36,10 +35,8 @@ bool UART::enableRXInterrupt(){
     }
     else{
         processed=true;
-        //uart_irq_callback_set(uart_dev, uartReceive);
         uart_irq_callback_user_data_set(uart_dev, uartReceive,this);
         uart_irq_rx_enable(uart_dev);
-        //printk("UART device loaded... [OK]");
     }
     return processed;
 }
@@ -62,14 +59,13 @@ void UART::uartReceive(const struct device *uart_dev, void *data){
         printk("retval should always be 1");
         return;
     }
-    if (uart_irq_rx_ready(uart_dev))
-    {
-        uart_fifo_read(uart_dev,&recvData,1);
-        thisUART->character = (char)recvData;
-        //thisUART->notify();
-        printk("%c",thisUART->character);
-    }  
-    //remove notify make statwe machine
+    else{
+        if (uart_irq_rx_ready(uart_dev))
+        {
+            uart_fifo_read(uart_dev,&recvData,1);
+            thisUART->elaborateMessage(recvData);
+        }
+    }
 }
 
 int UART::getBaudrate(){
@@ -77,12 +73,11 @@ int UART::getBaudrate(){
 }
 void UART::setBaudrate(int baudrate){
     this->baudrate = baudrate;
-    updateBaudrate();
-}
-void UART::updateBaudrate(){
     uart_cfg.baudrate = baudrate;
     int ret = uart_configure(uart_dev, &uart_cfg);
 	if (ret != 0) {
 		printk("Cannot configure UART device\n");
 	}
 }
+void UART::updateBaudrate(int baudrate){}
+void UART::elaborateMessage(u8_t character){}

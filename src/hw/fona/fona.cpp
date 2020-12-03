@@ -2,7 +2,7 @@
 
 Fona::Fona(const char* deviceBinding,int baudrate):UART(deviceBinding,baudrate)
 {
-    this->message="";
+    //this->message="";
 
     this->ev.setTarget(this);
     this->ev.setDnd(true);
@@ -23,29 +23,34 @@ Fona::Fona(const char* deviceBinding,int baudrate):UART(deviceBinding,baudrate)
     this->evRp.setTarget(this);
     this->evRp.setDnd(true);
     this->evRp.setId((Event::evID)evResponse);
+
+    selector=dataChoice;
 }
 
 Fona::~Fona(){}
 
-void Fona::initHW()
-{
-}
-
-void Fona::onMessage(u8_t character){
-    printk("%c",character);
-    message += character;
-    //event auslösen
-    if(state==ST_WAITOK){
-        if(message=="\r\nOK"){
-            XF::getInstance()->pushEvent(&ev);
-            message="";
+void Fona::elaborateMessage(u8_t character){
+    switch (selector)
+    {
+    case dataChoice:
+        data += (char)character;
+        break;
+    case bufferChoice:
+        buffer += (char)character;       
+        break;
+    }
+    if(character == 0x0A){
+        switch(selector){
+            case dataChoice:
+                selector=bufferChoice;
+                buffer="";
+                break;
+            case bufferChoice:
+                selector=dataChoice;
+                data="";
+                break;
         }
-    }
-    else if(state==ST_COMMAND){
-
-    }
-    else if(state==ST_IDLE){
-
+        XF::getInstance()->pushEvent(&evRp);
     }
 }
 
@@ -155,7 +160,6 @@ bool Fona::processEvent(Event* e)
             case ST_WAITOK:
                 printk("ST_WAITOK\n");
                 //dont send it here
-                send("ATE0");
                 send("AT");
             break;
             case ST_IDLE:

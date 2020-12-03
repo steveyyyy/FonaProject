@@ -21,14 +21,15 @@ class UART
 
         int getBaudrate();
         void setBaudrate(int baudrate);
-        void updateBaudrate();
+
+        virtual void updateBaudrate(int baudrate);
+        virtual void elaborateMessage(u8_t character);
 
     private:
         const struct device* uart_dev;  /**< device structur driver */ 
         struct uart_config uart_cfg;    /**< UART configuration */
         const char* deviceBinding;
         int baudrate;
-        u8_t character;
 
         static void uartReceive(const struct device *dev, void *data);
 };

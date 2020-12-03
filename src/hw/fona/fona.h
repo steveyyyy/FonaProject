@@ -6,7 +6,7 @@
 
 #ifndef FONA_ONCE
 #define FONA_ONCE
-
+#define MAXDATASIZE 255
 
 class Fona : public IReactive, public UART
 {
@@ -34,14 +34,25 @@ public:
 
     Fona(const char* deviceBinding,int baudrate);
     ~Fona();
-    void initHW();
     bool processEvent(Event* e);
     void startBehaviour();
     void subscribe(IFonaObserver* subscriber);
     void unsubscribe(IFonaObserver* subscriber);
     void notify();
-    void onMessage(u8_t character);
     void send(string command);
+
+    void elaborateMessage(u8_t character);
+
+    // uint8_t data[MAXDATASIZE];
+    // uint8_t buffer[MAXDATASIZE];
+
+    string data;
+    string buffer;
+    enum choice{
+        dataChoice=1,
+        bufferChoice
+    };
+    int selector;
 
 private:                           
     FONASTATES state;                     
@@ -51,7 +62,7 @@ private:
     Event evCmd;    //Command event
     Event evRp;     //Response event                             
     vector<IFonaObserver*> subscribers;
-    string message;
+    //string message;
 };
 
 #endif
