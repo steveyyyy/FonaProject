@@ -5,17 +5,17 @@
 #define DISPLAY_ONCE
 
 
-class Display : public UART::IUARTObserver
+class Display
 {
 public:
-    Display(UART* uart, u8_t command, u8_t specialCommand);
+    Display(u8_t command, u8_t specialCommand);
     ~Display();
     void initHW();
     void clearDispaly();
 
     void changeBaudrate(int baudrateOptions);
 private:
-    UART* uart;
+    // UART* uart;
     u8_t command;
     u8_t specialCommand;  
     int baudrateOptions[6]={2400, 
