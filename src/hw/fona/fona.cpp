@@ -50,14 +50,10 @@ void Fona::elaborateMessage(u8_t character){
                 data="";
                 break;
         }
-        if(state==ST_SETUP){
-            XF::getInstance()->pushEvent(&ev);
-        }
-        else if(state==ST_IDLE || state==ST_COMMAND){
+        if(state==ST_IDLE || state==ST_COMMAND|| state==ST_SETUP){
             XF::getInstance()->pushEvent(&evRp);
         } 
     }
-    //printk((char*)character);
 }
 
 void Fona::send(string message){
@@ -116,7 +112,7 @@ bool Fona::processEvent(Event* e)
             }
         break;
         case ST_SETUP:
-            if (e->getId() == Event::evDefault)
+            if (e->getId() == (Event::evID)evResponse)
             {
                 this->state = ST_WAITOK;
             }
