@@ -16,10 +16,6 @@ Fona::Fona(const char* deviceBinding,int baudrate):UART(deviceBinding,baudrate)
     this->evErr.setDnd(true);
     this->evErr.setId((Event::evID)evError);
 
-    this->evCmd.setTarget(this);
-    this->evCmd.setDnd(true);
-    this->evCmd.setId((Event::evID)evCommand);
-
     this->evRp.setTarget(this);
     this->evRp.setDnd(true);
     this->evRp.setId((Event::evID)evResponse);
@@ -39,12 +35,7 @@ void Fona::elaborateMessage(u8_t character){
 }
 
 void Fona::send(string message){
-    if(state==ST_IDLE){
-        message += "\r";
-        uartSend(message.c_str());
-        XF::getInstance()->pushEvent(&evCmd);
-    }
-    else if(state==ST_SETUP||state==ST_INIT){
+    if(state==ST_IDLE || state==ST_SETUP||state==ST_INIT){
         message += "\r";
         uartSend(message.c_str());
     }
@@ -110,16 +101,6 @@ bool Fona::processEvent(Event* e)
             }
         break;
         case ST_IDLE:
-            if (e->getId() == (Event::evID)evCommand)
-            {
-                this->state = ST_COMMAND;
-            }
-            if (e->getId() == (Event::evID)evResponse)
-            {
-                this->state = ST_NOTIFY;
-            }
-        break;
-        case ST_COMMAND:
             if (e->getId() == (Event::evID)evResponse)
             {
                 this->state = ST_NOTIFY;
@@ -154,9 +135,6 @@ bool Fona::processEvent(Event* e)
             break;
             case ST_IDLE:
                 printk("ST_IDLE\n");
-            break;
-            case ST_COMMAND:
-                printk("ST_COMMAND\n");
             break;
             case ST_NOTIFY:
                 printk("ST_NOTIFY\n");

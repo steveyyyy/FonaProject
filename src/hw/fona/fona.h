@@ -19,7 +19,6 @@ public:
     };
 
     typedef enum fonaEvents{    evError=200,
-                                evCommand,
                                 evResponse,
                                 evNotify
                              } fonaEvents;
@@ -28,7 +27,6 @@ public:
                                 ST_SETUP,
                                 ST_WAITOK,
                                 ST_IDLE,
-                                ST_COMMAND,
                                 ST_NOTIFY
                             } FONASTATES; 
 
@@ -57,7 +55,6 @@ private:
     Event ev;       //Default event
     Event evIni;    //Inital event
     Event evErr;    //Error event
-    Event evCmd;    //Command event
     Event evRp;     //Response event                             
     vector<IFonaObserver*> subscribers;
     string* dataSource;
