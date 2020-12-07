@@ -43,13 +43,17 @@ public:
 
     void elaborateMessage(u8_t character);
 
-    string data;
-    string buffer;
-    enum choice{
-        dataChoice=1,
-        bufferChoice
-    };
-    int selector;
+    // string data;
+    // string buffer;
+    // enum choice{
+    //     dataChoice=1,
+    //     bufferChoice
+    // };
+    // int selector;
+
+    uint8_t data[MAXDATASIZE];
+    uint8_t buffer[MAXDATASIZE];
+    uint8_t pos;
 
 private:                           
     FONASTATES state;                     
