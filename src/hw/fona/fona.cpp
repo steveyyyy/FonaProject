@@ -50,15 +50,25 @@ void Fona::elaborateMessage(u8_t character){
                 data="";
                 break;
         }
-        XF::getInstance()->pushEvent(&evRp);
+        if(state==ST_SETUP){
+            XF::getInstance()->pushEvent(&ev);
+        }
+        else if(state==ST_IDLE || state==ST_COMMAND){
+            XF::getInstance()->pushEvent(&evRp);
+        } 
     }
+    //printk((char*)character);
 }
 
 void Fona::send(string message){
-    if(state==ST_IDLE||state==ST_WAITOK){
+    if(state==ST_IDLE){
         message += "\r";
         uartSend(message.c_str());
         XF::getInstance()->pushEvent(&evCmd);
+    }
+    else if(state==ST_SETUP||state==ST_INIT){
+        message += "\r";
+        uartSend(message.c_str());
     }
 }
 
@@ -87,7 +97,7 @@ void Fona::notify()
     vector<IFonaObserver*>::iterator it;
     for (it=subscribers.begin(); it!=subscribers.end();++it)
     {
-        // (*it)->onResponse();
+        //(*it)->onResponse();
     }
 }
 
@@ -152,15 +162,33 @@ bool Fona::processEvent(Event* e)
         {
             case ST_INIT:
                 printk("ST_INIT\n");
+                send("ATE0");
             break;
             case ST_SETUP:
-                printk("ST_SETUP\n");
-                XF::getInstance()->pushEvent(&ev);               
+                printk("ST_SETUP\n");  
+                send("AT");     
             break;
             case ST_WAITOK:
                 printk("ST_WAITOK\n");
-                //dont send it here
-                send("AT");
+                switch (selector)
+                {
+                case dataChoice:
+                    if(buffer == "OK\r\n"){
+                         XF::getInstance()->pushEvent(&ev);
+                    }
+                    else{
+                        XF::getInstance()->pushEvent(&evErr);
+                    }
+                    break;
+                case bufferChoice:
+                    if(data == "OK\r\n"){
+                         XF::getInstance()->pushEvent(&ev);
+                    }
+                    else{
+                        XF::getInstance()->pushEvent(&evErr);
+                    }
+                    break;
+                }
             break;
             case ST_IDLE:
                 printk("ST_IDLE\n");

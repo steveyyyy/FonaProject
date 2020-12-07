@@ -43,9 +43,6 @@ public:
 
     void elaborateMessage(u8_t character);
 
-    // uint8_t data[MAXDATASIZE];
-    // uint8_t buffer[MAXDATASIZE];
-
     string data;
     string buffer;
     enum choice{
@@ -62,7 +59,6 @@ private:
     Event evCmd;    //Command event
     Event evRp;     //Response event                             
     vector<IFonaObserver*> subscribers;
-    //string message;
 };
 
 #endif
