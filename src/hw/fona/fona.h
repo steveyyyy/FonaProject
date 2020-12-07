@@ -59,6 +59,7 @@ private:
     Event evCmd;    //Command event
     Event evRp;     //Response event                             
     vector<IFonaObserver*> subscribers;
+    string* dataSource;
 };
 
 #endif

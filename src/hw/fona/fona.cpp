@@ -170,24 +170,19 @@ bool Fona::processEvent(Event* e)
             break;
             case ST_WAITOK:
                 printk("ST_WAITOK\n");
-                switch (selector)
-                {
-                case dataChoice:
-                    if(buffer == "OK\r\n"){
-                         XF::getInstance()->pushEvent(&ev);
-                    }
-                    else{
-                        XF::getInstance()->pushEvent(&evErr);
-                    }
-                    break;
-                case bufferChoice:
-                    if(data == "OK\r\n"){
-                         XF::getInstance()->pushEvent(&ev);
-                    }
-                    else{
-                        XF::getInstance()->pushEvent(&evErr);
-                    }
-                    break;
+                switch (selector){
+                    case dataChoice:
+                        dataSource=&buffer;
+                        break;
+                    case bufferChoice:
+                        dataSource=&data;
+                        break;
+                }
+                if(*dataSource == "OK\r\n"){
+                    XF::getInstance()->pushEvent(&ev);
+                }
+                else{
+                    XF::getInstance()->pushEvent(&evErr);
                 }
             break;
             case ST_IDLE:
