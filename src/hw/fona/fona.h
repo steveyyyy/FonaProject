@@ -41,14 +41,11 @@ public:
 
     void elaborateMessage(u8_t character);
 
-    // string data;
-    // string buffer;
-
     uint8_t data[MAXDATASIZE];
     uint8_t buffer[MAXDATASIZE];
     uint8_t pos;
 
-    bool compareDataTo(char * compare);
+    bool compareDataTo(string compare);
 
 private:                           
     FONASTATES state;                     

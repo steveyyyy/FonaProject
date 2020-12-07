@@ -146,13 +146,13 @@ bool Fona::processEvent(Event* e)
     return processed;
 }
 
-bool Fona::compareDataTo(char * compare){
-    int textLength = sizeof(compare);
-    char* compareData;
+bool Fona::compareDataTo(string compare){
+    int textLength = compare.length();
+    string compareData="";
     for(int i=0; i < textLength; i++){
         compareData+=(data[i]);
     }
-    if(strcmp(compareData, compare[3]+"\r\n")){
+    if(compareData==compare){
         return true;
     }
     else{
