@@ -10,9 +10,9 @@ LED Factory::_ledRed(1,"GPIOA");
 GPI Factory::_pinSwitchhook(11,"GPIOA");
 Button Factory::_switchhook(&_pinSwitchhook);
 
-Dial Factory::_dialer(&_switchhook,&_ledGreen,&_ledRed);
-
 Fona Factory::_fona("UART_1", 115200);
+
+Dial Factory::_dialer(&_switchhook,&_ledGreen,&_ledRed,&_fona);
 
 
 Factory::Factory(/* args */) {
@@ -70,6 +70,7 @@ void Factory::init() {
     switchhook()->initHW();
 
     fona()->initHW();
+    fona()->enableRXInterrupt();
 }
 
 void Factory::build() {
@@ -77,6 +78,7 @@ void Factory::build() {
     // blinkerA()->setLed(ledGreen());
     switchhook()->subscribe(dialer());
     rotary()->subscribe(dialer()); 
+    fona()->subscribe(dialer());
 }
 
 void Factory::start() {

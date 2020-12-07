@@ -7,24 +7,28 @@
 #include "../hw/rotarydial/rotarydial.h"
 #include "../hw/button/button.h"
 #include "../hw/led/led.h"
+#include "../hw/fona/fona.h"
+#include "../hw/display/display.h"
 
-class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Button::IButtonObserver
+class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Button::IButtonObserver, public Fona::IFonaObserver
 {
     public:
         typedef enum DIALERSTATE{ ST_INIT, 
-                                   ST_WAITHOOKUP, 
+                                   ST_IDLE, 
                                    ST_DIALING,
                                    ST_VALIDATEDIGIT,
-                                   ST_NOTIFY,
-                                   ST_WAITHOOKDOWN
+                                   ST_CALL,
+                                   ST_RING
                                  } DIALERSTATE;
 
         typedef enum dialerEvents{  evHookUp=300,
                                     evHookDown,
                                     evOnDigit,
-                                    evNotify,
+                                    evCall,
+                                    evRing,
+                                    evRingStop
                                  } rotaryEvents;
-        Dial(Button* switchhook, LED* ledGreen, LED* ledRed);
+        Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona);
         ~Dial();
         string getNumber();
         void deleteNumber();
@@ -32,10 +36,12 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         void onDigit(int digit);
         bool processEvent(Event* event);
         void startBehaviour();
+        void onResponse();
     private:
         Button* switchhook;
         LED* ledGreen;
         LED* ledRed;
+        Fona* fona;
         string number;
         bool listenOnDigits;
         DIALERSTATE state;
@@ -53,6 +59,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                         {"145","Toxinfo"}};
         struct k_timer* t;
         static void onTimeout(struct k_timer* t);
+        
         
         
 };

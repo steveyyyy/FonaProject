@@ -75,7 +75,7 @@ void Fona::notify()
     vector<IFonaObserver*>::iterator it;
     for (it=subscribers.begin(); it!=subscribers.end();++it)
     {
-        //(*it)->onResponse();
+        (*it)->onResponse();
     }
 }
 
@@ -148,8 +148,7 @@ bool Fona::processEvent(Event* e)
             break;
             case ST_WAITOK:
                 printk("ST_WAITOK\n");
-                //if((char *)data == "OK\r\n"){
-                if(strcmp((char *)(data[0]+data[1]+data[2]+data[3]+data[4]),"OK\r\n")){
+                if(compareDataTo("OK")){
                     XF::getInstance()->pushEvent(&ev);
                 }
             break;
@@ -161,10 +160,26 @@ bool Fona::processEvent(Event* e)
             break;
             case ST_NOTIFY:
                 printk("ST_NOTIFY\n");
+                notify();
+                XF::getInstance()->pushEvent(&ev);
             break;
         }
     }
     return processed;
+}
+
+bool Fona::compareDataTo(char * compare){
+    int textLength = sizeof(compare);
+    char* compareData;
+    for(int i=0; i < textLength; i++){
+        compareData+=(data[i]);
+    }
+    if(strcmp(compareData, compare[3]+"\r\n")){
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 

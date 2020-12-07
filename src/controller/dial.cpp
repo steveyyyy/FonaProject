@@ -7,12 +7,14 @@ void Dial::onTimeout(struct k_timer* t){
     XF::getInstance()->pushEvent(nf);
 }
 
-Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed){
+Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona){
 
     this->ledGreen=ledGreen;
     this->ledRed=ledRed;
 
     this->switchhook=switchhook;
+
+    this->fona=fona;
 
     listenOnDigits=false;
     state=ST_INIT;
@@ -40,7 +42,7 @@ Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed){
 
     this->nf.setTarget(this);
     this->nf.setDnd(true);
-    this->nf.setId((Event::evID)evNotify);
+    this->nf.setId((Event::evID)evCall);
 
     t=(struct k_timer*) k_malloc(sizeof(struct k_timer));
     k_timer_init(t, &Dial::onTimeout, NULL);
@@ -82,41 +84,36 @@ bool Dial::processEvent(Event* e){
     switch(state){
         case ST_INIT:
             if (e->getId() == Event::evInitial){
-                this->state = ST_WAITHOOKUP;
+                this->state = ST_IDLE;
             }
             break;
-        case ST_WAITHOOKUP:
+        case ST_IDLE:
             if(e->getId()==(Event::evID)evHookUp){
                 state=ST_DIALING;     
             }
             break;
         case ST_DIALING:
-            if(e->getId()==(Event::evID)evNotify){
-                state=ST_NOTIFY;     
+            if(e->getId()==(Event::evID)evCall){
+                state=ST_CALL;     
             }
             if(e->getId()==(Event::evID)evOnDigit){
                 state=ST_VALIDATEDIGIT;     
             }
             if(e->getId()==(Event::evID)evHookDown){
-                state=ST_WAITHOOKUP;     
+                state=ST_IDLE;     
             }
             break;
         case ST_VALIDATEDIGIT:
             if(e->getId()==Event::evDefault){
                 state=ST_DIALING;     
             }
-            if(e->getId()==(Event::evID)evNotify){
-                state=ST_NOTIFY;     
+            if(e->getId()==(Event::evID)evCall){
+                state=ST_CALL;     
             }
             break;
-        case ST_NOTIFY:
-            if(e->getId()==Event::evDefault){
-                state=ST_WAITHOOKDOWN;  
-            }
-            break;
-        case ST_WAITHOOKDOWN:
+        case ST_CALL:
             if(e->getId()==(Event::evID)evHookDown){
-                state=ST_WAITHOOKUP;     
+                state=ST_IDLE;  
             }
             break;
     }
@@ -126,7 +123,7 @@ bool Dial::processEvent(Event* e){
             case ST_INIT:
                 printk("ST_INIT\n");
                 break;
-            case ST_WAITHOOKUP:
+            case ST_IDLE:
                 ledGreen->off();
                 ledRed->off();
                 listenOnDigits=false;
@@ -159,19 +156,21 @@ bool Dial::processEvent(Event* e){
                     XF::getInstance()->pushEvent(&ev);
                 }
                 break;
-            case ST_NOTIFY: //not done yet
+            case ST_CALL:
                 ledRed->off();
                 ledGreen->on();
                 listenOnDigits=false;
                 printk("ST_NOTIFY\n");
+                fona->send("ATD"+number+"i;");
                 printk(number.c_str());
                 printk("\n");
-                XF::getInstance()->pushEvent(&ev);
-                break;
-            case ST_WAITHOOKDOWN:
-                printk("ST_WAITHOOKDOWN\n");
                 break;
         }
     }
     return processed;
+}
+void Dial::onResponse(){
+    if(fona->compareDataTo("RING")){
+        printk("ITS RINGING");
+    }
 }
