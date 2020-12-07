@@ -91,6 +91,12 @@ bool Dial::processEvent(Event* e){
             if(e->getId()==(Event::evID)evHookUp){
                 state=ST_DIALING;     
             }
+            if(e->getId()==(Event::evID)evRing){
+                state=ST_RING;     
+            }
+            break;
+        case ST_RING:
+
             break;
         case ST_DIALING:
             if(e->getId()==(Event::evID)evCall){
@@ -113,6 +119,11 @@ bool Dial::processEvent(Event* e){
             break;
         case ST_CALL:
             if(e->getId()==(Event::evID)evHookDown){
+                state=ST_ENDCALL;  
+            }
+            break;
+        case ST_ENDCALL:
+            if(e->getId()==Event::evDefault){
                 state=ST_IDLE;  
             }
             break;
@@ -129,6 +140,9 @@ bool Dial::processEvent(Event* e){
                 listenOnDigits=false;
                 deleteNumber();
                 printk("ST_WAITHOOKUP\n");
+                break;
+            case ST_RING:
+
                 break;
             case ST_DIALING:
                 ledRed->on();
@@ -165,6 +179,9 @@ bool Dial::processEvent(Event* e){
                 printk(number.c_str());
                 printk("\n");
                 break;
+            case ST_ENDCALL:
+                fona->send("AT+CHUP");
+                break;
         }
     }
     return processed;
@@ -172,5 +189,8 @@ bool Dial::processEvent(Event* e){
 void Dial::onResponse(){
     if(fona->compareDataTo("RING")){
         printk("ITS RINGING");
+    }
+    if(fona->compareDataTo("VOICE CALL: END")){
+        XF::getInstance()->pushEvent(&ev);
     }
 }

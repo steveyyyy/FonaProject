@@ -18,7 +18,8 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                    ST_DIALING,
                                    ST_VALIDATEDIGIT,
                                    ST_CALL,
-                                   ST_RING
+                                   ST_RING,
+                                   ST_ENDCALL
                                  } DIALERSTATE;
 
         typedef enum dialerEvents{  evHookUp=300,
