@@ -45,11 +45,6 @@ public:
 
     // string data;
     // string buffer;
-    // enum choice{
-    //     dataChoice=1,
-    //     bufferChoice
-    // };
-    // int selector;
 
     uint8_t data[MAXDATASIZE];
     uint8_t buffer[MAXDATASIZE];
