@@ -15,7 +15,7 @@ public:
     class IFonaObserver
     {
         public:
-        virtual void onResponse() = 0;
+        virtual void onResponse(string text) = 0;
     };
 
     typedef enum fonaEvents{    evError=200,
@@ -36,7 +36,7 @@ public:
     void startBehaviour();
     void subscribe(IFonaObserver* subscriber);
     void unsubscribe(IFonaObserver* subscriber);
-    void notify();
+    void notify(string text);
     void send(string command);
 
     void elaborateMessage(u8_t character);
@@ -45,8 +45,7 @@ public:
     uint8_t buffer[MAXDATASIZE];
     uint8_t pos;
 
-    bool compareDataTo(string compare);
-
+    string convertToString();
 private:                           
     FONASTATES state;                     
     Event ev;       //Default event

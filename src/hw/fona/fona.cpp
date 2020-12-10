@@ -2,8 +2,6 @@
 
 Fona::Fona(const char* deviceBinding,int baudrate):UART(deviceBinding,baudrate)
 {
-    //this->message="";
-
     this->ev.setTarget(this);
     this->ev.setDnd(true);
     this->ev.setId(Event::evDefault);
@@ -61,12 +59,12 @@ void Fona::unsubscribe(IFonaObserver* subscriber)
     }
 }
 
-void Fona::notify()
+void Fona::notify(string text)
 {
     vector<IFonaObserver*>::iterator it;
     for (it=subscribers.begin(); it!=subscribers.end();++it)
     {
-        (*it)->onResponse();
+        (*it)->onResponse(text);
     }
 }
 
@@ -129,8 +127,9 @@ bool Fona::processEvent(Event* e)
             break;
             case ST_WAITOK:
                 printk("ST_WAITOK\n");
-                if(compareDataTo("OK")){
+                if(convertToString()=="OK"){
                     XF::getInstance()->pushEvent(&ev);
+                    notify("OK");
                 }
             break;
             case ST_IDLE:
@@ -138,7 +137,7 @@ bool Fona::processEvent(Event* e)
             break;
             case ST_NOTIFY:
                 printk("ST_NOTIFY\n");
-                notify();
+                notify(convertToString());
                 XF::getInstance()->pushEvent(&ev);
             break;
         }
@@ -146,20 +145,21 @@ bool Fona::processEvent(Event* e)
     return processed;
 }
 
-bool Fona::compareDataTo(string compare){
-    int textLength = compare.length();
-    string compareData="";
-    for(int i=0; i < textLength; i++){
-        compareData+=(data[i]);
+string Fona::convertToString() 
+{ 
+    bool end= true;
+    int i=0;
+    string s = "";
+    while(end){
+        s = s + (char)data[i];
+        if(data[i+1]==0x0D){
+            end=false;
+            break;
+        }
+        i++;
     }
-    if(compareData==compare){
-        return true;
-    }
-    else{
-        return false;
-    }
-}
-
+    return s; 
+} 
 
 void Fona::startBehaviour()
 {
