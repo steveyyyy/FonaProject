@@ -118,25 +118,20 @@ bool Fona::processEvent(Event* e)
         switch (this->state)
         {
             case ST_INIT:
-                printk("ST_INIT\n");
                 send("ATE0");
             break;
             case ST_SETUP:
-                printk("ST_SETUP\n");  
                 send("AT");     
             break;
             case ST_WAITOK:
-                printk("ST_WAITOK\n");
                 if(convertToString()=="OK"){
                     XF::getInstance()->pushEvent(&ev);
                     notify("OK");
                 }
             break;
             case ST_IDLE:
-                printk("ST_IDLE\n");
             break;
             case ST_NOTIFY:
-                printk("ST_NOTIFY\n");
                 notify(convertToString());
                 XF::getInstance()->pushEvent(&ev);
             break;
