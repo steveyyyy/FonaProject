@@ -18,7 +18,10 @@ Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona){
 
     listenOnDigits=false;
     state=ST_INIT;
-    number="";
+    deleteNumber();
+
+    this->lo.setTarget(this);
+    this->lo.setDnd(true);
 
     this->in.setTarget(this);
     this->in.setDnd(true);
@@ -40,13 +43,25 @@ Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona){
     this->od.setDnd(true);
     this->od.setId((Event::evID)evOnDigit);
 
-    this->nf.setTarget(this);
-    this->nf.setDnd(true);
-    this->nf.setId((Event::evID)evCall);
+    this->dl.setTarget(this);
+    this->dl.setDnd(true);
+    this->dl.setId((Event::evID)evDial);
+
+    this->rg.setTarget(this);
+    this->rg.setDnd(true);
+    this->rg.setId((Event::evID)evRing);
+
+    this->rs.setTarget(this);
+    this->rs.setDnd(true);
+    this->rs.setId((Event::evID)evRingStop);
+
+    this->ed.setTarget(this);
+    this->ed.setDnd(true);
+    this->ed.setId((Event::evID)evHangUp);
 
     t=(struct k_timer*) k_malloc(sizeof(struct k_timer));
     k_timer_init(t, &Dial::onTimeout, NULL);
-    k_timer_user_data_set(t,&nf);
+    k_timer_user_data_set(t,&dl);
 }
 Dial::~Dial(){}
 
@@ -71,7 +86,9 @@ void Dial::onDigit(int digit){
     if(listenOnDigits){
         number += std::to_string(digit);
     }
-    XF::getInstance()->pushEvent(&od);
+    if(state==ST_DIALING){
+        XF::getInstance()->pushEvent(&od);
+    }
 }
 
 void Dial::startBehaviour(){
@@ -84,7 +101,25 @@ bool Dial::processEvent(Event* e){
     switch(state){
         case ST_INIT:
             if (e->getId() == Event::evInitial){
+                this->state = ST_CHECKLOCK;
+            }
+            break;
+        case ST_CHECKLOCK:
+            if (e->getId() == (Event::evID)evNoLock){
                 this->state = ST_IDLE;
+            }
+            if (e->getId() == (Event::evID)evLocked){
+                this->state = ST_LOCKED;
+            }
+            break;
+        case ST_LOCKED:
+            if (e->getId() == (Event::evID)evHookDown){
+                this->state = ST_UNLOCK;
+            }
+            break;
+        case ST_UNLOCK:
+            if (e->getId() == Event::evDefault){
+                this->state = ST_CHECKLOCK;
             }
             break;
         case ST_IDLE:
@@ -95,12 +130,9 @@ bool Dial::processEvent(Event* e){
                 state=ST_RING;     
             }
             break;
-        case ST_RING:
-
-            break;
         case ST_DIALING:
-            if(e->getId()==(Event::evID)evCall){
-                state=ST_CALL;     
+            if(e->getId()==(Event::evID)evDial){
+                state=ST_DIAL;     
             }
             if(e->getId()==(Event::evID)evOnDigit){
                 state=ST_VALIDATEDIGIT;     
@@ -113,11 +145,16 @@ bool Dial::processEvent(Event* e){
             if(e->getId()==Event::evDefault){
                 state=ST_DIALING;     
             }
-            if(e->getId()==(Event::evID)evCall){
-                state=ST_CALL;     
+            if(e->getId()==(Event::evID)evDial){
+                state=ST_DIAL;     
             }
             break;
-        case ST_CALL:
+        case ST_DIAL:
+            if (e->getId() == Event::evDefault){
+                this->state = ST_INCALL;
+            }
+            break;    
+        case ST_INCALL:
             if(e->getId()==(Event::evID)evHookDown){
                 state=ST_ENDCALL;  
             }
@@ -127,22 +164,45 @@ bool Dial::processEvent(Event* e){
                 state=ST_IDLE;  
             }
             break;
+        case ST_RING:
+            if (e->getId() == (Event::evID)evHookUp){
+                this->state = ST_TAKECALL;
+            }
+            if (e->getId() == (Event::evID)evRingStop){
+                this->state = ST_TAKECALL;
+            }
+            break;
+        case ST_TAKECALL:
+            if (e->getId() == Event::evDefault){
+                this->state = ST_INCALL;
+            }
+            break;
     }
     if(oldState!=state){
         processed=true;
         switch(state){
             case ST_INIT:
-                printk("ST_INIT\n");
+                break;
+            //integrate AT and the other commands in here
+            case ST_CHECKLOCK:
+                printk("ST_CHECKLOCK\n");
+                fona->send("ATDi;");
+                break;
+            case ST_LOCKED:
+                printk("ST_LOCKED\n");
+                listenOnDigits=true;
+                break;
+            case ST_UNLOCK:
+                printk("ST_UNLOCK\n");
+                listenOnDigits=false;
+                fona->send("AT+CPIN="+number);
                 break;
             case ST_IDLE:
+                printk("ST_WAITHOOKUP\n");
                 ledGreen->off();
                 ledRed->off();
                 listenOnDigits=false;
                 deleteNumber();
-                printk("ST_WAITHOOKUP\n");
-                break;
-            case ST_RING:
-
                 break;
             case ST_DIALING:
                 ledRed->on();
@@ -160,37 +220,119 @@ bool Dial::processEvent(Event* e){
                 listenOnDigits=false;
                 for(string *emergencyNumber: emergencyNumbers){
                     if(emergencyNumber[0]==number){
-                        XF::getInstance()->pushEvent(&nf);
+                        XF::getInstance()->pushEvent(&dl);
                     }
                 }
                 if(number.length()==10&&number[0]=='0'&&number[1]!='0'){
-                    XF::getInstance()->pushEvent(&nf);
+                    XF::getInstance()->pushEvent(&dl);
                 }
                 else{
                     XF::getInstance()->pushEvent(&ev);
                 }
                 break;
-            case ST_CALL:
-                ledRed->off();
-                ledGreen->on();
+            case ST_DIAL:
                 listenOnDigits=false;
-                printk("ST_NOTIFY\n");
+                printk("ST_DIAL\n");
                 fona->send("ATD"+number+"i;");
                 printk(number.c_str());
                 printk("\n");
+                ledRed->off();
+                ledGreen->on();
+                break;
+            case ST_INCALL:
+                printk("ST_INIT\n");
                 break;
             case ST_ENDCALL:
                 fona->send("AT+CHUP");
+                break;
+            case ST_RING:
+                printk("ST_INIT\n");
+                break;
+            case ST_TAKECALL:
+                printk("ST_INIT\n");
+                fona->send("ATA");
                 break;
         }
     }
     return processed;
 }
-void Dial::onResponse(){
-    if(fona->compareDataTo("RING")){
-        printk("ITS RINGING");
+void Dial::onResponse(string text){
+    printk(text.c_str());
+    switch (state)
+    {
+    // case ST_INIT:
+    //     XF::getInstance()->pushEvent(&in);
+    //     break;
+    case ST_CHECKLOCK:
+        //printk(text.c_str());
+        if(text=="CPIN: SIM PIN"){
+            printk("locked");
+            this->lo.setId((Event::evID)evLocked);
+        }else if(text=="READY"){
+            printk("unlocked");
+            this->lo.setId((Event::evID)evNoLock);
+        }
+        XF::getInstance()->pushEvent(&lo);
+        break;
+    case ST_IDLE:
+        if(text=="RING"){
+            XF::getInstance()->pushEvent(&rg);
+        }
+        break;
+    case ST_TAKECALL:
+        if(text=="VOICE CALL: BEGIN"){
+            XF::getInstance()->pushEvent(&ev);
+        }
+        break;
+    case ST_INCALL:
+        if(text=="VOICE CALL: END"){
+            XF::getInstance()->pushEvent(&ed);
+        }
+        break;
+    case ST_ENDCALL:
+        if(text=="VOICE CALL: END"){
+            XF::getInstance()->pushEvent(&ev);
+        }
+        break;
     }
-    if(fona->compareDataTo("VOICE CALL: END")){
-        XF::getInstance()->pushEvent(&ev);
-    }
+    // if(fona->compareDataTo("+CPI")){
+    //         printk("locked");
+    //         this->lo.setId((Event::evID)evLocked);
+    //     }
+    // switch (state)
+    // {
+    // case ST_INIT:
+    //     XF::getInstance()->pushEvent(&in);
+    //     break;
+    // case ST_CHECKLOCK:
+    //     if(fona->compareDataTo("PIN: SIM PIN")){
+    //         printk("locked");
+    //         this->lo.setId((Event::evID)evLocked);
+    //     }else if(fona->compareDataTo("READY")){
+    //         printk("unlocked");
+    //         this->lo.setId((Event::evID)evNoLock);
+    //     }
+    //     XF::getInstance()->pushEvent(&lo);
+    //     break;
+    // case ST_IDLE:
+    //     if(fona->compareDataTo("RING")){
+    //         XF::getInstance()->pushEvent(&rg);
+    //     }
+    //     break;
+    // case ST_TAKECALL:
+    //     if(fona->compareDataTo("VOICE CALL: BEGIN")){
+    //         XF::getInstance()->pushEvent(&ev);
+    //     }
+    //     break;
+    // case ST_INCALL:
+    //     if(fona->compareDataTo("VOICE CALL: END")){
+    //         XF::getInstance()->pushEvent(&ed);
+    //     }
+    //     break;
+    // case ST_ENDCALL:
+    //     if(fona->compareDataTo("VOICE CALL: END")){
+    //         XF::getInstance()->pushEvent(&ev);
+    //     }
+    //     break;
+    // }
 }

@@ -13,21 +13,29 @@
 class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Button::IButtonObserver, public Fona::IFonaObserver
 {
     public:
-        typedef enum DIALERSTATE{ ST_INIT, 
-                                   ST_IDLE, 
-                                   ST_DIALING,
-                                   ST_VALIDATEDIGIT,
-                                   ST_CALL,
-                                   ST_RING,
-                                   ST_ENDCALL
-                                 } DIALERSTATE;
+        typedef enum DIALERSTATE{   ST_INIT,
+                                    ST_CHECKLOCK,
+                                    ST_LOCKED,
+                                    ST_UNLOCK,
+                                    ST_IDLE, 
+                                    ST_DIALING,
+                                    ST_VALIDATEDIGIT,
+                                    ST_DIAL,
+                                    ST_INCALL,
+                                    ST_ENDCALL,
+                                    ST_RING,
+                                    ST_TAKECALL
+                                } DIALERSTATE;
 
-        typedef enum dialerEvents{  evHookUp=300,
+        typedef enum dialerEvents{  evLocked=300,
+                                    evNoLock,
+                                    evHookUp,
                                     evHookDown,
                                     evOnDigit,
-                                    evCall,
+                                    evDial,
                                     evRing,
-                                    evRingStop
+                                    evRingStop,
+                                    evHangUp
                                  } rotaryEvents;
         Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona);
         ~Dial();
@@ -37,7 +45,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         void onDigit(int digit);
         bool processEvent(Event* event);
         void startBehaviour();
-        void onResponse();
+        void onResponse(string text);
     private:
         Button* switchhook;
         LED* ledGreen;
@@ -46,12 +54,16 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         string number;
         bool listenOnDigits;
         DIALERSTATE state;
+        Event lo; //Lock event
         Event in; //inital event
         Event ev; //default event
         Event hu; //hookup event
         Event hd; //hookdown event
         Event od; //OnDigit event
-        Event nf; //Notify event
+        Event dl; //Dial event
+        Event rg; //Ring event
+        Event rs; //Stop Ring event
+        Event ed; //Event end call (other person hangs up)
         string emergencyNumbers[6][2]={ {"112","Notruf"},
                                         {"117","Polizei"},
                                         {"118","Feuerwehr"},

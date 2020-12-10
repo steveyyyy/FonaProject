@@ -25,7 +25,7 @@ Fona::~Fona(){}
 void Fona::elaborateMessage(u8_t character){
     buffer[pos]=character;
     pos++;
-    if(character == 0x0A){
+    if(character == 0x0D){
         memcpy(data,buffer,MAXDATASIZE);
         pos=0;
         XF::getInstance()->pushEvent(&evRp);
@@ -126,7 +126,6 @@ bool Fona::processEvent(Event* e)
             case ST_WAITOK:
                 if(convertToString()=="OK"){
                     XF::getInstance()->pushEvent(&ev);
-                    notify("OK");
                 }
             break;
             case ST_IDLE:
@@ -142,17 +141,18 @@ bool Fona::processEvent(Event* e)
 
 string Fona::convertToString() 
 { 
-    bool end= true;
+    bool condition= true;
     int i=0;
     string s = "";
-    while(end){
-        s = s + (char)data[i];
-        if(data[i+1]==0x0D){
-            end=false;
+    while(condition){
+        s = s + (char)buffer[i];
+        if(buffer[i+1]==0x0D){
+            condition=false;
             break;
         }
         i++;
     }
+    printk(s.c_str());
     return s; 
 } 
 

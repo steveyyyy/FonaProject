@@ -36,13 +36,6 @@ void Factory::init() {
     pPulse()->initHW();
     pSwitchhook()->initHW();
 
-    //initialize uart
-    ////uart1()->initHW();
-    //enable uart interrupt
-    ////uart1()->enableRXInterrupt();
-
-    
-
     IntManager::Interrupt ntrpt;
     //enable interrupts on pWindUp
     ntrpt.edge = IntManager::BOTH;
@@ -74,8 +67,6 @@ void Factory::init() {
 }
 
 void Factory::build() {
-    // Nothing to do
-    // blinkerA()->setLed(ledGreen());
     switchhook()->subscribe(dialer());
     rotary()->subscribe(dialer()); 
     fona()->subscribe(dialer());
@@ -83,12 +74,8 @@ void Factory::build() {
 
 void Factory::start() {
     rotary()->startBehaviour();
-
-    // ledGreen()->off();
-    // ledRed()->off();
-
-    switchhook()->startBehaviour();
-    dialer()->startBehaviour();
+    switchhook()->startBehaviour(); 
     fona()->startBehaviour();
+    dialer()->startBehaviour();
 }
 
