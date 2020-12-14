@@ -18,13 +18,15 @@ public:
         virtual void onResponse(string text) = 0;
     };
 
-    typedef enum fonaEvents{    evResponse,
+    typedef enum fonaEvents{    evResponse1=200,
+                                evResponse2,
                                 evNotify
                              } fonaEvents;
 
     typedef enum FONASTATES {   ST_INIT,
                                 ST_IDLE,
-                                ST_NOTIFY
+                                ST_NOTIFY1,
+                                ST_NOTIFY2
                             } FONASTATES; 
 
     Fona(const char* deviceBinding,int baudrate);
@@ -33,12 +35,14 @@ public:
     void startBehaviour();
     void subscribe(IFonaObserver* subscriber);
     void unsubscribe(IFonaObserver* subscriber);
-    void notify();
+    void notify(string text);
     void send(string command);
     string convertToString(uint8_t data[MAXDATASIZE]);
     void elaborateMessage(u8_t character);
 
-    uint8_t data[MAXDATASIZE];
+    uint8_t data1[MAXDATASIZE];
+    uint8_t data2[MAXDATASIZE];
+    bool switcher;
     uint8_t buffer[MAXDATASIZE];
     uint8_t pos;
 

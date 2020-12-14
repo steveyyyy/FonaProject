@@ -12,8 +12,9 @@ Fona::Fona(const char* deviceBinding,int baudrate):UART(deviceBinding,baudrate)
 
     this->evRp.setTarget(this);
     this->evRp.setDnd(true);
-    this->evRp.setId((Event::evID)evResponse);
+    
     pos='0';
+    switcher =true;
 }
 
 Fona::~Fona(){}
@@ -22,14 +23,22 @@ void Fona::elaborateMessage(u8_t character){
     buffer[pos]=character;
     pos++;
     if(character == 0x0A){
-        if(buffer[pos-3]==0x0D&&buffer[pos-2]==0x0A){
+        if(buffer[0]==0x0D&&buffer[1]==0x0A){
             pos=0;
         }
         else{
             //buffer[pos]=0x9F;
-            memcpy(data,buffer,MAXDATASIZE);
-            pos=0;
+            if(switcher){
+                memcpy(data1,buffer,MAXDATASIZE);
+                this->evRp.setId((Event::evID)evResponse1);
+            }
+            else{
+                memcpy(data2,buffer,MAXDATASIZE);
+                this->evRp.setId((Event::evID)evResponse2);
+            }
+            switcher = !switcher;
             XF::getInstance()->pushEvent(&evRp);
+            pos=0; 
         }
     }
 }
@@ -59,12 +68,12 @@ void Fona::unsubscribe(IFonaObserver* subscriber)
     }
 }
 
-void Fona::notify()
+void Fona::notify(string text)
 {
     vector<IFonaObserver*>::iterator it;
     for (it=subscribers.begin(); it!=subscribers.end();++it)
     {
-        (*it)->onResponse(convertToString(data));
+        (*it)->onResponse(text);
     }
 }
 
@@ -83,12 +92,22 @@ bool Fona::processEvent(Event* e)
             }
         break;
         case ST_IDLE:
-            if (e->getId() == (Event::evID)evResponse)
+            if (e->getId() == (Event::evID)evResponse1)
             {
-                this->state = ST_NOTIFY;
+                this->state = ST_NOTIFY1;
+            }
+            if (e->getId() == (Event::evID)evResponse2)
+            {
+                this->state = ST_NOTIFY2;
             }
         break;
-        case ST_NOTIFY:
+        case ST_NOTIFY1:
+            if (e->getId() == Event::evDefault)
+            {
+                this->state = ST_IDLE;
+            }
+        break;
+        case ST_NOTIFY2:
             if (e->getId() == Event::evDefault)
             {
                 this->state = ST_IDLE;
@@ -105,8 +124,12 @@ bool Fona::processEvent(Event* e)
             break;
             case ST_IDLE:
             break;
-            case ST_NOTIFY:
-                notify();
+            case ST_NOTIFY1:
+                notify(convertToString(data1));
+                XF::getInstance()->pushEvent(&ev);
+            break;
+            case ST_NOTIFY2:
+                notify(convertToString(data2));
                 XF::getInstance()->pushEvent(&ev);
             break;
         }
