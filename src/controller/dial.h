@@ -39,7 +39,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                     evRing,
                                     evRingStop,
                                     evHangUp
-                                 } rotaryEvents;
+                                 } dialerEvents;
         Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona);
         ~Dial();
         string getNumber();

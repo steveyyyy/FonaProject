@@ -19,15 +19,8 @@ public:
     };
 
     typedef enum fonaEvents{    evResponse1=200,
-                                evResponse2,
-                                evNotify
+                                evResponse2
                              } fonaEvents;
-
-    typedef enum FONASTATES {   ST_INIT,
-                                ST_IDLE,
-                                ST_NOTIFY1,
-                                ST_NOTIFY2
-                            } FONASTATES; 
 
     Fona(const char* deviceBinding,int baudrate);
     ~Fona();
@@ -46,10 +39,7 @@ public:
     uint8_t buffer[MAXDATASIZE];
     uint8_t pos;
 
-private:                           
-    FONASTATES state;                     
-    Event ev;       //Default event
-    Event evIni;    //Inital event                             
+private:
     Event evRp1;     //Response1 event
     Event evRp2;     //Response2 event
     vector<IFonaObserver*> subscribers;

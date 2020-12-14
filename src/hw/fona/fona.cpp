@@ -2,14 +2,6 @@
 
 Fona::Fona(const char* deviceBinding,int baudrate):UART(deviceBinding,baudrate)
 {
-    this->ev.setTarget(this);
-    this->ev.setDnd(true);
-    this->ev.setId(Event::evDefault);
-
-    this->evIni.setTarget(this);
-    this->evIni.setDnd(true);
-    this->evIni.setId(Event::evInitial);
-
     this->evRp1.setTarget(this);
     this->evRp1.setDnd(true);
     this->evRp1.setId((Event::evID)evResponse1);
@@ -34,12 +26,12 @@ void Fona::elaborateMessage(u8_t character){
         else{
             //buffer[pos]=0x9F;
             if(switcher){
-                memcpy(data1,buffer,MAXDATASIZE);
-                XF::getInstance()->pushEvent(&evRp1);
+                 memcpy(data1,buffer,MAXDATASIZE);
+                 XF::getInstance()->pushEvent(&evRp1);
             }
             else{
-                memcpy(data2,buffer,MAXDATASIZE);
-                XF::getInstance()->pushEvent(&evRp2);
+                 memcpy(data2,buffer,MAXDATASIZE);
+                 XF::getInstance()->pushEvent(&evRp2);
             }
             switcher = !switcher;
             
@@ -84,10 +76,7 @@ void Fona::notify(string text)
 
 bool Fona::processEvent(Event* e)
 {
-    bool processed=false;
-
-
-    
+    bool processed=false;    
             if (e->getId() == (Event::evID)evResponse1)
             {
                 notify(convertToString(data1));
