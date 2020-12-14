@@ -10,9 +10,14 @@ Fona::Fona(const char* deviceBinding,int baudrate):UART(deviceBinding,baudrate)
     this->evIni.setDnd(true);
     this->evIni.setId(Event::evInitial);
 
-    this->evRp.setTarget(this);
-    this->evRp.setDnd(true);
-    
+    this->evRp1.setTarget(this);
+    this->evRp1.setDnd(true);
+    this->evRp1.setId((Event::evID)evResponse1);
+
+    this->evRp2.setTarget(this);
+    this->evRp2.setDnd(true);
+    this->evRp2.setId((Event::evID)evResponse2);
+
     pos='0';
     switcher =true;
 }
@@ -23,21 +28,21 @@ void Fona::elaborateMessage(u8_t character){
     buffer[pos]=character;
     pos++;
     if(character == 0x0A){
-        if(buffer[0]==0x0D&&buffer[1]==0x0A){
+        if(pos <= 3){
             pos=0;
         }
         else{
             //buffer[pos]=0x9F;
             if(switcher){
                 memcpy(data1,buffer,MAXDATASIZE);
-                this->evRp.setId((Event::evID)evResponse1);
+                XF::getInstance()->pushEvent(&evRp1);
             }
             else{
                 memcpy(data2,buffer,MAXDATASIZE);
-                this->evRp.setId((Event::evID)evResponse2);
+                XF::getInstance()->pushEvent(&evRp2);
             }
             switcher = !switcher;
-            XF::getInstance()->pushEvent(&evRp);
+            
             pos=0; 
         }
     }
@@ -79,70 +84,23 @@ void Fona::notify(string text)
 
 bool Fona::processEvent(Event* e)
 {
-    FONASTATES oldstate;
     bool processed=false;
 
-    oldstate = this->state;
-    switch (this->state)
-    {
-        case ST_INIT:
-            if (e->getId() == Event::evInitial)
-            {
-                this->state = ST_IDLE;
-            }
-        break;
-        case ST_IDLE:
+
+    
             if (e->getId() == (Event::evID)evResponse1)
             {
-                this->state = ST_NOTIFY1;
+                notify(convertToString(data1));
+                processed=true;
             }
             if (e->getId() == (Event::evID)evResponse2)
             {
-                this->state = ST_NOTIFY2;
-            }
-        break;
-        case ST_NOTIFY1:
-            if (e->getId() == Event::evDefault)
-            {
-                this->state = ST_IDLE;
-            }
-        break;
-        case ST_NOTIFY2:
-            if (e->getId() == Event::evDefault)
-            {
-                this->state = ST_IDLE;
-            }
-        break;
-    }
-
-    if (oldstate != this->state)
-    {
-        processed=true;
-        switch (this->state)
-        {
-            case ST_INIT:
-            break;
-            case ST_IDLE:
-            break;
-            case ST_NOTIFY1:
-                notify(convertToString(data1));
-                XF::getInstance()->pushEvent(&ev);
-            break;
-            case ST_NOTIFY2:
                 notify(convertToString(data2));
-                XF::getInstance()->pushEvent(&ev);
-            break;
-        }
-    }
-    return processed;
+                processed=true;
+            }
+        return processed;
 }
 
-void Fona::startBehaviour()
-{
-    evIni.setId(Event::evInitial);
-    evIni.setDelay(0);
-    XF::getInstance()->pushEvent(&evIni);
-}
 
 string Fona::convertToString(uint8_t data[MAXDATASIZE]) 
 { 

@@ -75,7 +75,6 @@ void Factory::build() {
 void Factory::start() {
     rotary()->startBehaviour();
     switchhook()->startBehaviour(); 
-    fona()->startBehaviour();
     dialer()->startBehaviour();
 }
 

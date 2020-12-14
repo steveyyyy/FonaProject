@@ -32,7 +32,7 @@ public:
     Fona(const char* deviceBinding,int baudrate);
     ~Fona();
     bool processEvent(Event* e);
-    void startBehaviour();
+   
     void subscribe(IFonaObserver* subscriber);
     void unsubscribe(IFonaObserver* subscriber);
     void notify(string text);
@@ -50,7 +50,8 @@ private:
     FONASTATES state;                     
     Event ev;       //Default event
     Event evIni;    //Inital event                             
-    Event evRp;     //Response event                             
+    Event evRp1;     //Response1 event
+    Event evRp2;     //Response2 event
     vector<IFonaObserver*> subscribers;
 };
 
