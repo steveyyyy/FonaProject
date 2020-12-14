@@ -101,9 +101,21 @@ bool Dial::processEvent(Event* e){
     switch(state){
         case ST_INIT:
             if (e->getId() == Event::evInitial){
-                this->state = ST_CHECKLOCK;
+                this->state = ST_SETUP;
             }
             break;
+        case ST_SETUP:
+            if (e->getId() == Event::evDefault){
+                this->state = ST_WAITOK;
+            }
+            break;
+        case ST_WAITOK:
+            if (e->getId() == Event::evDefault){
+                this->state = ST_CHECKLOCK;
+            }else if (e->getId() == (Event::evID)evError){
+                this->state = ST_SETUP;
+            }
+            break;    
         case ST_CHECKLOCK:
             if (e->getId() == (Event::evID)evNoLock){
                 this->state = ST_IDLE;
@@ -183,10 +195,15 @@ bool Dial::processEvent(Event* e){
         switch(state){
             case ST_INIT:
                 break;
-            //integrate AT and the other commands in here
+            case ST_SETUP:
+                XF::getInstance()->pushEvent(&ev);
+                fona->send("ATE0");
+                break;
+            case ST_WAITOK:
+                break;
             case ST_CHECKLOCK:
                 printk("ST_CHECKLOCK\n");
-                fona->send("ATDi;");
+                fona->send("AT+CPIN?");
                 break;
             case ST_LOCKED:
                 printk("ST_LOCKED\n");
@@ -257,15 +274,15 @@ bool Dial::processEvent(Event* e){
     return processed;
 }
 void Dial::onResponse(string text){
-    printk(text.c_str());
     switch (state)
     {
-    // case ST_INIT:
-    //     XF::getInstance()->pushEvent(&in);
-    //     break;
+    case ST_WAITOK:
+        if(text == "OK\r\n"){
+            XF::getInstance()->pushEvent(&ev);
+        }
+        break;
     case ST_CHECKLOCK:
-        //printk(text.c_str());
-        if(text=="CPIN: SIM PIN"){
+        if(text=="\n+CPIN: SIM PIN"){
             printk("locked");
             this->lo.setId((Event::evID)evLocked);
         }else if(text=="READY"){
@@ -295,44 +312,4 @@ void Dial::onResponse(string text){
         }
         break;
     }
-    // if(fona->compareDataTo("+CPI")){
-    //         printk("locked");
-    //         this->lo.setId((Event::evID)evLocked);
-    //     }
-    // switch (state)
-    // {
-    // case ST_INIT:
-    //     XF::getInstance()->pushEvent(&in);
-    //     break;
-    // case ST_CHECKLOCK:
-    //     if(fona->compareDataTo("PIN: SIM PIN")){
-    //         printk("locked");
-    //         this->lo.setId((Event::evID)evLocked);
-    //     }else if(fona->compareDataTo("READY")){
-    //         printk("unlocked");
-    //         this->lo.setId((Event::evID)evNoLock);
-    //     }
-    //     XF::getInstance()->pushEvent(&lo);
-    //     break;
-    // case ST_IDLE:
-    //     if(fona->compareDataTo("RING")){
-    //         XF::getInstance()->pushEvent(&rg);
-    //     }
-    //     break;
-    // case ST_TAKECALL:
-    //     if(fona->compareDataTo("VOICE CALL: BEGIN")){
-    //         XF::getInstance()->pushEvent(&ev);
-    //     }
-    //     break;
-    // case ST_INCALL:
-    //     if(fona->compareDataTo("VOICE CALL: END")){
-    //         XF::getInstance()->pushEvent(&ed);
-    //     }
-    //     break;
-    // case ST_ENDCALL:
-    //     if(fona->compareDataTo("VOICE CALL: END")){
-    //         XF::getInstance()->pushEvent(&ev);
-    //     }
-    //     break;
-    // }
 }

@@ -18,14 +18,11 @@ public:
         virtual void onResponse(string text) = 0;
     };
 
-    typedef enum fonaEvents{    evError=200,
-                                evResponse,
+    typedef enum fonaEvents{    evResponse,
                                 evNotify
                              } fonaEvents;
 
     typedef enum FONASTATES {   ST_INIT,
-                                ST_SETUP,
-                                ST_WAITOK,
                                 ST_IDLE,
                                 ST_NOTIFY
                             } FONASTATES; 
@@ -50,7 +47,6 @@ private:
     FONASTATES state;                     
     Event ev;       //Default event
     Event evIni;    //Inital event
-    Event evErr;    //Error event
     Event evRp;     //Response event                             
     vector<IFonaObserver*> subscribers;
     string* dataSource;

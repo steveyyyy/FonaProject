@@ -14,6 +14,8 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
 {
     public:
         typedef enum DIALERSTATE{   ST_INIT,
+                                    ST_SETUP,
+                                    ST_WAITOK,
                                     ST_CHECKLOCK,
                                     ST_LOCKED,
                                     ST_UNLOCK,
@@ -27,7 +29,8 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                     ST_TAKECALL
                                 } DIALERSTATE;
 
-        typedef enum dialerEvents{  evLocked=300,
+        typedef enum dialerEvents{  evError=300,
+                                    evLocked,
                                     evNoLock,
                                     evHookUp,
                                     evHookDown,
