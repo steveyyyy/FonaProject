@@ -48,7 +48,9 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         void onDigit(int digit);
         bool processEvent(Event* event);
         void startBehaviour();
-        void onResponse(string text);
+        void onResponse(uint8_t data[MAXDATASIZE]);
+
+        string convertToString(uint8_t data[MAXDATASIZE]);
     private:
         Button* switchhook;
         LED* ledGreen;

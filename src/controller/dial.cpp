@@ -273,7 +273,8 @@ bool Dial::processEvent(Event* e){
     }
     return processed;
 }
-void Dial::onResponse(string text){
+void Dial::onResponse(uint8_t data[MAXDATASIZE]){
+    string text=convertToString(data);
     switch (state)
     {
     case ST_WAITOK:
@@ -282,7 +283,7 @@ void Dial::onResponse(string text){
         }
         break;
     case ST_CHECKLOCK:
-        if(text=="\n+CPIN: SIM PIN"){
+        if(text=="+CPIN: SIM PIN\r\n"){
             printk("locked");
             this->lo.setId((Event::evID)evLocked);
         }else if(text=="READY"){
@@ -312,4 +313,21 @@ void Dial::onResponse(string text){
         }
         break;
     }
+}
+
+string Dial::convertToString(uint8_t data[MAXDATASIZE]) 
+{ 
+    bool condition= true;
+    int i=0;
+    string s = "";
+    while(condition){
+        s = s + (char)data[i];
+        if(data[i]==0x0A){
+            condition=false;
+            break;
+        }
+        i++;
+    }
+    //printk(s.c_str());
+    return s; 
 }
