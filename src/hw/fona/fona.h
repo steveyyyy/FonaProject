@@ -15,7 +15,7 @@ public:
     class IFonaObserver
     {
         public:
-        virtual void onResponse(uint8_t data[MAXDATASIZE]) = 0;
+        virtual void onResponse(string text) = 0;
     };
 
     typedef enum fonaEvents{    evResponse,
@@ -35,7 +35,7 @@ public:
     void unsubscribe(IFonaObserver* subscriber);
     void notify();
     void send(string command);
-
+    string convertToString(uint8_t data[MAXDATASIZE]);
     void elaborateMessage(u8_t character);
 
     uint8_t data[MAXDATASIZE];

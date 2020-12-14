@@ -22,10 +22,15 @@ void Fona::elaborateMessage(u8_t character){
     buffer[pos]=character;
     pos++;
     if(character == 0x0A){
-        //buffer[pos]=0x9F;
-        memcpy(data,buffer,MAXDATASIZE);
-        pos=0;
-        XF::getInstance()->pushEvent(&evRp);
+        if(buffer[pos-3]==0x0D&&buffer[pos-2]==0x0A){
+            pos=0;
+        }
+        else{
+            //buffer[pos]=0x9F;
+            memcpy(data,buffer,MAXDATASIZE);
+            pos=0;
+            XF::getInstance()->pushEvent(&evRp);
+        }
     }
 }
 
@@ -59,7 +64,7 @@ void Fona::notify()
     vector<IFonaObserver*>::iterator it;
     for (it=subscribers.begin(); it!=subscribers.end();++it)
     {
-        (*it)->onResponse(data);
+        (*it)->onResponse(convertToString(data));
     }
 }
 
@@ -114,4 +119,21 @@ void Fona::startBehaviour()
     evIni.setId(Event::evInitial);
     evIni.setDelay(0);
     XF::getInstance()->pushEvent(&evIni);
+}
+
+string Fona::convertToString(uint8_t data[MAXDATASIZE]) 
+{ 
+    bool condition= true;
+    int i=0;
+    string s = "";
+    while(condition){
+        s = s + (char)data[i];
+        if(data[i]==0x0A){
+            condition=false;
+            break;
+        }
+        i++;
+    }
+    //printk(s.c_str());
+    return s; 
 }

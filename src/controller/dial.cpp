@@ -273,8 +273,7 @@ bool Dial::processEvent(Event* e){
     }
     return processed;
 }
-void Dial::onResponse(uint8_t data[MAXDATASIZE]){
-    string text=convertToString(data);
+void Dial::onResponse(string text){
     switch (state)
     {
     case ST_WAITOK:
@@ -313,21 +312,4 @@ void Dial::onResponse(uint8_t data[MAXDATASIZE]){
         }
         break;
     }
-}
-
-string Dial::convertToString(uint8_t data[MAXDATASIZE]) 
-{ 
-    bool condition= true;
-    int i=0;
-    string s = "";
-    while(condition){
-        s = s + (char)data[i];
-        if(data[i]==0x0A){
-            condition=false;
-            break;
-        }
-        i++;
-    }
-    //printk(s.c_str());
-    return s; 
 }
