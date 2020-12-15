@@ -1,48 +1,15 @@
 #include "fona.h"
 
-Fona::Fona(const char* deviceBinding,int baudrate):UART(deviceBinding,baudrate)
+Fona::Fona(UART* uart)
 {
-    this->evRp1.setTarget(this);
-    this->evRp1.setDnd(true);
-    this->evRp1.setId((Event::evID)evResponse1);
-
-    this->evRp2.setTarget(this);
-    this->evRp2.setDnd(true);
-    this->evRp2.setId((Event::evID)evResponse2);
-
-    pos='0';
-    switcher =true;
+    this->uart=uart;
 }
 
 Fona::~Fona(){}
 
-void Fona::elaborateMessage(u8_t character){
-    buffer[pos]=character;
-    pos++;
-    if(character == 0x0A){
-        if(pos <= 3){
-            pos=0;
-        }
-        else{
-            //buffer[pos]=0x9F;
-            if(switcher){
-                 memcpy(data1,buffer,MAXDATASIZE);
-                 XF::getInstance()->pushEvent(&evRp1);
-            }
-            else{
-                 memcpy(data2,buffer,MAXDATASIZE);
-                 XF::getInstance()->pushEvent(&evRp2);
-            }
-            switcher = !switcher;
-            
-            pos=0; 
-        }
-    }
-}
-
 void Fona::send(string message){
         message += "\r";
-        uartSend(message.c_str());
+        uart->uartSend(message.c_str());
 }
 
 void Fona::subscribe(IFonaObserver* subscriber)
@@ -65,31 +32,14 @@ void Fona::unsubscribe(IFonaObserver* subscriber)
     }
 }
 
-void Fona::notify(string text)
+void Fona::notify()
 {
     vector<IFonaObserver*>::iterator it;
     for (it=subscribers.begin(); it!=subscribers.end();++it)
     {
-        (*it)->onResponse(text);
+        //(*it)->onResponse();
     }
 }
-
-bool Fona::processEvent(Event* e)
-{
-    bool processed=false;    
-            if (e->getId() == (Event::evID)evResponse1)
-            {
-                notify(convertToString(data1));
-                processed=true;
-            }
-            if (e->getId() == (Event::evID)evResponse2)
-            {
-                notify(convertToString(data2));
-                processed=true;
-            }
-        return processed;
-}
-
 
 string Fona::convertToString(uint8_t data[MAXDATASIZE]) 
 { 
@@ -104,6 +54,23 @@ string Fona::convertToString(uint8_t data[MAXDATASIZE])
         }
         i++;
     }
-    //printk(s.c_str());
     return s; 
+}
+
+void Fona::onMessage(){
+    // if(k_is_in_isr()){
+    //     printk("i am iqr: true\n");
+    // }
+    // else{
+    //     printk("i am not iqr: false\n");
+    // }
+    uint8_t* text = uart->getMessageFromQueue();
+    //uint8_t* txt = uart->getMessageFromQueue();
+    printk((char*)text);
+}
+bool Fona::processEvent(Event* e){
+
+}
+void Fona::startBehaviour(){
+
 }

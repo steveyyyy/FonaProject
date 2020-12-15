@@ -1,20 +1,31 @@
 #include "uart.h"
 
-UART::UART(const char* deviceBinding,int baudrate){
+UART::UART(const char* deviceBinding,int baudrate, uint8_t endOfMessage){
     uart_dev = NULL;
     this->baudrate = baudrate;
     this->deviceBinding=deviceBinding;
+    this->pos=0;
+    this->endOfMessage=endOfMessage;
+    memset(message,0,MAXDATASIZE);
+    //Config Message Queue
+    k_msgq_init(&messages, messages_buffer, sizeof(uint8_t[MAXDATASIZE]), 10);
+
+    this->ev.setTarget(this);
+    this->ev.setDnd(true);
+
+    this->rp.setTarget(this);
+    this->rp.setDnd(true);
+    this->rp.setId((Event::evID)evResponse);
 }
 
-UART::~UART(){};
+UART::~UART() {}
 
-void UART::initHW(){
+void UART::initHW(){    
     //Get device
     uart_dev = device_get_binding(deviceBinding);
 	if (!uart_dev) {
 		printk("Cannot get UART device\n");
 	}
-
     //Config device
     uart_cfg.baudrate = baudrate;
     uart_cfg.parity = UART_CFG_PARITY_NONE;
@@ -63,14 +74,19 @@ void UART::uartReceive(const struct device *uart_dev, void *data){
         if (uart_irq_rx_ready(uart_dev))
         {
             uart_fifo_read(uart_dev,&recvData,1);
-            thisUART->elaborateMessage(recvData);
+            thisUART->message[thisUART->pos]=recvData;
+            thisUART->pos++; 
+            if(recvData == 0x0A)
+            {
+                thisUART->message[thisUART->pos]= 0;
+                k_msgq_put(&thisUART->messages, &thisUART->message,K_NO_WAIT);
+                thisUART->pos=0;
+                XF::getInstance()->pushEvent(&thisUART->rp);
+            }
         }
     }
 }
 
-int UART::getBaudrate(){
-    return this->baudrate;
-}
 void UART::setBaudrate(int baudrate){
     this->baudrate = baudrate;
     uart_cfg.baudrate = baudrate;
@@ -79,5 +95,88 @@ void UART::setBaudrate(int baudrate){
 		printk("Cannot configure UART device\n");
 	}
 }
-void UART::updateBaudrate(int baudrate){}
-void UART::elaborateMessage(u8_t character){}
+
+void UART::setEndOfMessage(uint8_t endOfMessage){
+    this->endOfMessage = endOfMessage;
+}
+
+void UART::subscribe(IUARTObserver* subscriber)
+{
+    vector<IUARTObserver*>::iterator it;
+    it = find(subscribers.begin(), subscribers.end(),subscriber);
+    if (it == subscribers.end())
+    {
+        subscribers.push_back(subscriber);
+    }
+}
+
+void UART::unsubscribe(IUARTObserver* subscriber)
+{
+    vector<IUARTObserver*>::iterator it;
+    it = find(subscribers.begin(), subscribers.end(),subscriber);
+    if (it != subscribers.end())
+    {
+        subscribers.erase(it);
+    }
+}
+
+void UART::notify()
+{
+    vector<IUARTObserver*>::iterator it;
+    for (it=subscribers.begin(); it!=subscribers.end();++it)
+    {
+        (*it)->onMessage();
+    }
+}
+
+uint8_t* UART::getMessageFromQueue(){
+    uint8_t data[MAXDATASIZE];
+    k_msgq_get(&messages, &data, K_FOREVER);
+    return data;
+}
+
+bool UART::processEvent(Event* e){
+    bool processed =false;
+    UARTSTATE oldState = state;
+    switch (state)
+    {
+    case ST_INIT:
+        if(e->getId()==Event::evInitial){
+            state=ST_IDLE;
+        }
+        break;
+    case ST_IDLE:
+        if(e->getId()==(Event::evID)evResponse){
+            state=ST_RECEIVE;
+        }
+        break;
+    case ST_RECEIVE:
+        if(e->getId()==Event::evDefault){
+            state=ST_IDLE;
+        }
+        break;
+    }
+    if(oldState!=state)
+    {
+        processed=true;
+        switch (state){
+            case ST_INIT:
+                break;
+            case ST_IDLE:
+                //printk("uart idle\n");
+                break;
+            case ST_RECEIVE:
+                //printk("uart recive\n");
+                notify();
+                ev.setId(Event::evDefault);
+                XF::getInstance()->pushEvent(&ev);
+                break;
+        }
+    }
+    return processed;
+}
+void UART::startBehaviour(){
+    state=ST_INIT;
+    ev.setId(Event::evInitial);
+    XF::getInstance()->pushEvent(&ev);
+}
