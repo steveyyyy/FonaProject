@@ -82,6 +82,7 @@ void UART::uartReceive(const struct device *uart_dev, void *data){
                 k_msgq_put(&thisUART->messages, &thisUART->message,K_NO_WAIT);
                 thisUART->pos=0;
                 XF::getInstance()->pushEvent(&thisUART->rp);
+                //XF::getInstance()->pushEvent(&thisUART->rp);
             }
         }
     }
@@ -120,20 +121,20 @@ void UART::unsubscribe(IUARTObserver* subscriber)
     }
 }
 
-void UART::notify()
+void UART::notify(uint8_t data[MAXDATASIZE])
 {
     vector<IUARTObserver*>::iterator it;
     for (it=subscribers.begin(); it!=subscribers.end();++it)
     {
-        (*it)->onMessage();
+        (*it)->onMessage(data);
     }
 }
 
-uint8_t* UART::getMessageFromQueue(){
-    uint8_t data[MAXDATASIZE];
-    k_msgq_get(&messages, &data, K_FOREVER);
-    return data;
-}
+// uint8_t* UART::getMessageFromQueue(){
+//     //uint8_t data[MAXDATASIZE];
+//     k_msgq_get(&messages, &data, K_FOREVER);
+//     return data;
+// }
 
 bool UART::processEvent(Event* e){
     bool processed =false;
@@ -167,7 +168,9 @@ bool UART::processEvent(Event* e){
                 break;
             case ST_RECEIVE:
                 //printk("uart recive\n");
-                notify();
+                uint8_t data[MAXDATASIZE];
+                k_msgq_get(&messages, &data, K_FOREVER);
+                notify(data);
                 ev.setId(Event::evDefault);
                 XF::getInstance()->pushEvent(&ev);
                 break;

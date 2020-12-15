@@ -8,7 +8,7 @@
 #define FONA_ONCE
 
 
-class Fona : public IReactive, public UART::IUARTObserver
+class Fona : public UART::IUARTObserver
 {
 public:
 
@@ -25,12 +25,8 @@ public:
     void notify();
     void send(string command);
     string convertToString(uint8_t data[MAXDATASIZE]);
-    void elaborateMessage(u8_t character);
-    void onMessage();
 
-    bool processEvent(Event* e);
-    void startBehaviour();
-
+    void onMessage(uint8_t data[MAXDATASIZE]);
 private:
     UART* uart; 
     vector<IFonaObserver*> subscribers;

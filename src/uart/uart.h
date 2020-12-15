@@ -17,7 +17,7 @@ class UART: public IReactive
         class IUARTObserver
         {
             public:
-            virtual void onMessage() = 0;
+            virtual void onMessage(uint8_t data[MAXDATASIZE]) = 0;
         };
 
         UART(const char* deviceBinding,int baudrate, uint8_t endOfMessage=0x0A);
@@ -34,7 +34,7 @@ class UART: public IReactive
 
         void subscribe(IUARTObserver* subscriber);
         void unsubscribe(IUARTObserver* subscriber);
-        void notify();
+        void notify(uint8_t data[MAXDATASIZE]);
 
         bool processEvent(Event* e);
         void startBehaviour();
@@ -47,7 +47,7 @@ class UART: public IReactive
                                     ST_RECEIVE
                                  } UARTSTATE;
         //uint8_t* getMessageFromQueue();
-        uint8_t* getMessageFromQueue();
+        //uint8_t* getMessageFromQueue();
     private:
         const struct device* uart_dev;  /**< device structur driver */ 
         struct uart_config uart_cfg;    /**< UART configuration */

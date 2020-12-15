@@ -59,20 +59,14 @@ string Fona::convertToString(uint8_t data[MAXDATASIZE])
     return s; 
 }
 
-void Fona::onMessage(){
+void Fona::onMessage(uint8_t data[MAXDATASIZE]){
     // if(k_is_in_isr()){
     //     printk("i am iqr: true\n");
     // }
     // else{
     //     printk("i am not iqr: false\n");
     // }
-    uint8_t* text = uart->getMessageFromQueue();
+    uint8_t* text = data;
     //uint8_t* txt = uart->getMessageFromQueue();
     printk((char*)text);
-}
-bool Fona::processEvent(Event* e){
-
-}
-void Fona::startBehaviour(){
-
 }
