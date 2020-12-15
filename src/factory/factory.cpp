@@ -60,9 +60,10 @@ void Factory::init() {
     
     ledGreen()->initHW();
     ledRed()->initHW();
-
+    
     switchhook()->initHW();
-
+    //error happens here
+    uart()->subscribe(fona()); 
     //init UART
     uart()->initHW();
     //enable UART interrupt
@@ -72,7 +73,7 @@ void Factory::init() {
 void Factory::build() {
     switchhook()->subscribe(dialer());
     rotary()->subscribe(dialer());
-    uart()->subscribe(fona()); 
+    
     fona()->subscribe(dialer());
 }
 

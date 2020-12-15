@@ -3,6 +3,8 @@
 Fona::Fona(UART* uart)
 {
     this->uart=uart;
+    //Error doesn happen here
+    //this->uart->subscribe(this);
 }
 
 Fona::~Fona(){}
