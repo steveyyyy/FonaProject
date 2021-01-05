@@ -26,7 +26,7 @@ public:
     void send(string command);
     string convertToString(uint8_t data[MAXDATASIZE]);
 
-    void onMessage(uint8_t data[MAXDATASIZE]);
+    void onMessage(k_msgq* messages);
 private:
     UART* uart; 
     vector<IFonaObserver*> subscribers;
