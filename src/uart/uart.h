@@ -7,9 +7,9 @@
 #include <algorithm>
 #include <cstring>
 
-#define MAXDATASIZE 32 //32 oder 28 anstatt 30 da es durch 4 teilbar ist
+#define MAXDATASIZE 40//32 //32 oder 28 anstatt 30 da es durch 4 teilbar ist
 
-using namespace std;
+
 
 class UART: public IReactive 
 {
@@ -17,7 +17,7 @@ class UART: public IReactive
         class IUARTObserver
         {
             public:
-            virtual void onMessage(uint8_t data[MAXDATASIZE]) = 0;
+            virtual void onMessage(k_msgq* messages) = 0;
         };
 
         UART(const char* deviceBinding,int baudrate, uint8_t endOfMessage=0x0A);
@@ -34,7 +34,7 @@ class UART: public IReactive
 
         void subscribe(IUARTObserver* subscriber);
         void unsubscribe(IUARTObserver* subscriber);
-        void notify(uint8_t data[MAXDATASIZE]);
+        void notify();
 
         bool processEvent(Event* e);
         void startBehaviour();
@@ -46,8 +46,6 @@ class UART: public IReactive
                                     ST_IDLE,
                                     ST_RECEIVE
                                  } UARTSTATE;
-        //uint8_t* getMessageFromQueue();
-        //uint8_t* getMessageFromQueue();
     private:
         const struct device* uart_dev;  /**< device structur driver */ 
         struct uart_config uart_cfg;    /**< UART configuration */
@@ -57,7 +55,6 @@ class UART: public IReactive
         char __aligned(4) messages_buffer[10 * sizeof(uint8_t[MAXDATASIZE])];
         struct k_msgq messages;
         uint8_t message[MAXDATASIZE];
-        //uint8_t data[MAXDATASIZE];
         uint8_t pos;
         uint8_t endOfMessage;
         vector<IUARTObserver*> subscribers;

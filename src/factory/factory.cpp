@@ -63,7 +63,7 @@ void Factory::init() {
     
     switchhook()->initHW();
     //error happens here
-    uart()->subscribe(fona()); 
+    //uart()->subscribe(fona()); 
     //init UART
     uart()->initHW();
     //enable UART interrupt

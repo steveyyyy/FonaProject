@@ -82,7 +82,6 @@ void UART::uartReceive(const struct device *uart_dev, void *data){
                 k_msgq_put(&thisUART->messages, &thisUART->message,K_NO_WAIT);
                 thisUART->pos=0;
                 XF::getInstance()->pushEvent(&thisUART->rp);
-                //XF::getInstance()->pushEvent(&thisUART->rp);
             }
         }
     }
@@ -121,61 +120,60 @@ void UART::unsubscribe(IUARTObserver* subscriber)
     }
 }
 
-void UART::notify(uint8_t data[MAXDATASIZE])
+void UART::notify()
 {
     vector<IUARTObserver*>::iterator it;
     for (it=subscribers.begin(); it!=subscribers.end();++it)
     {
-        (*it)->onMessage(data);
+        (*it)->onMessage(&messages);
     }
 }
 
-// uint8_t* UART::getMessageFromQueue(){
-//     //uint8_t data[MAXDATASIZE];
-//     k_msgq_get(&messages, &data, K_FOREVER);
-//     return data;
-// }
-
 bool UART::processEvent(Event* e){
-    bool processed =false;
+    bool processed =true;
     UARTSTATE oldState = state;
-    switch (state)
-    {
-    case ST_INIT:
-        if(e->getId()==Event::evInitial){
-            state=ST_IDLE;
-        }
-        break;
-    case ST_IDLE:
-        if(e->getId()==(Event::evID)evResponse){
-            state=ST_RECEIVE;
-        }
-        break;
-    case ST_RECEIVE:
-        if(e->getId()==Event::evDefault){
-            state=ST_IDLE;
-        }
-        break;
-    }
-    if(oldState!=state)
-    {
-        processed=true;
-        switch (state){
-            case ST_INIT:
-                break;
-            case ST_IDLE:
-                //printk("uart idle\n");
-                break;
-            case ST_RECEIVE:
-                //printk("uart recive\n");
-                uint8_t data[MAXDATASIZE];
-                k_msgq_get(&messages, &data, K_FOREVER);
-                notify(data);
+    if(e->getId()==(Event::evID)evResponse){
+                notify();
                 ev.setId(Event::evDefault);
                 XF::getInstance()->pushEvent(&ev);
-                break;
-        }
-    }
+            }
+    // switch (state)
+    // {
+    // case ST_INIT:
+    //     if(e->getId()==Event::evInitial){
+    //         state=ST_IDLE;
+    //     }
+    //     break;
+    // case ST_IDLE:
+    //     if(e->getId()==(Event::evID)evResponse){
+    //         state=ST_RECEIVE;
+    //     }
+    //     break;
+    // case ST_RECEIVE:
+    //     if(e->getId()==Event::evDefault){
+    //         state=ST_IDLE;
+    //     }
+    //     break;
+    // }
+    // if(oldState!=state)
+    // {
+    //     processed=true;
+    //     switch (state){
+    //         case ST_INIT:
+    //             break;
+    //         case ST_IDLE:
+    //             //printk("uart idle\n");
+    //             break;
+    //         case ST_RECEIVE:
+    //             //printk("uart recive\n");
+    //             uint8_t data[MAXDATASIZE];
+    //             k_msgq_get(&messages, &data, K_FOREVER);
+    //             notify(data);
+    //             ev.setId(Event::evDefault);
+    //             XF::getInstance()->pushEvent(&ev);
+    //             break;
+    //     }
+    // }
     return processed;
 }
 void UART::startBehaviour(){

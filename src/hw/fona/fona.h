@@ -7,6 +7,7 @@
 #ifndef FONA_ONCE
 #define FONA_ONCE
 
+using namespace std;
 
 class Fona : public UART::IUARTObserver
 {
@@ -15,7 +16,7 @@ public:
     class IFonaObserver
     {
         public:
-        //virtual void onResponse() = 0;
+        virtual void onResponse(char* message) = 0;
     };
 
     Fona(UART* uart);
@@ -24,12 +25,12 @@ public:
     void unsubscribe(IFonaObserver* subscriber);
     void notify();
     void send(string command);
-    string convertToString(uint8_t data[MAXDATASIZE]);
-
+    //string convertToString(uint8_t data[MAXDATASIZE]) ;
     void onMessage(k_msgq* messages);
 private:
     UART* uart; 
     vector<IFonaObserver*> subscribers;
+    uint8_t data[MAXDATASIZE];
 };
 
 #endif

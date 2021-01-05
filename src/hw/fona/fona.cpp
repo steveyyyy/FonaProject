@@ -39,38 +39,32 @@ void Fona::notify()
     vector<IFonaObserver*>::iterator it;
     for (it=subscribers.begin(); it!=subscribers.end();++it)
     {
-        //(*it)->onResponse();
+        (*it)->onResponse((char*)data);
     }
 }
 
-// string Fona::convertToString(uint8_t data[MAXDATASIZE]) 
-// { 
-//     bool condition= true;
-//     int i=0;
-//     string s = "";
-//     while(condition){
-//         s = s + (char)data[i];
-//         if(data[i]==0x0A){
-//             condition=false;
-//             break;
-//         }
-//         i++;
-//     }
-//     return s; 
-// }
-
 void Fona::onMessage(k_msgq* messages){
-    if(k_is_in_isr()){
-        printk("i am iqr: true\n");
-    }
-    else{
-        printk("i am not iqr: false\n");
-    };
-    uint8_t data[MAXDATASIZE];
+    // if(k_is_in_isr()){
+    //     printk("i am iqr: true\n");
+    // }
+    // else{
+    //     printk("i am not iqr: false\n");
+    // };
+    
     k_msgq_get(messages, &data, K_NO_WAIT);
-    string s = (char *)data;
-    printk("DATA: ");
-    printk(s.c_str());
+    //string s = (char *)data;
+    // printk("DATA: ");
+    //printk(s.c_str());
+    // printk((char *)data);
+    // printk("\n");
+    // if((char *)data!="\r\r\n"){
+    //     notify();
+    // }
+    char textbeginning[2] = {0};
+    strncpy(textbeginning, (char *)data, 2);
+    if(!(strcmp(textbeginning,"\r\n")==0)){
+        notify();
+    }
 }
 
 // string Fona::convertToString(uint8_t data[MAXDATASIZE]) 

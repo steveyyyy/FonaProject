@@ -170,6 +170,9 @@ bool Dial::processEvent(Event* e){
             if(e->getId()==(Event::evID)evHookDown){
                 state=ST_ENDCALL;  
             }
+            if(e->getId()==(Event::evID)evHangUp){
+                state=ST_IDLE;  
+            }
             break;
         case ST_ENDCALL:
             if(e->getId()==Event::evDefault){
@@ -210,12 +213,13 @@ bool Dial::processEvent(Event* e){
                 listenOnDigits=true;
                 break;
             case ST_UNLOCK:
+                XF::getInstance()->pushEvent(&ev);
                 printk("ST_UNLOCK\n");
                 listenOnDigits=false;
                 fona->send("AT+CPIN="+number);
                 break;
             case ST_IDLE:
-                printk("ST_WAITHOOKUP\n");
+                printk("ST_IDLE\n");
                 ledGreen->off();
                 ledRed->off();
                 listenOnDigits=false;
@@ -257,57 +261,72 @@ bool Dial::processEvent(Event* e){
                 ledGreen->on();
                 break;
             case ST_INCALL:
-                printk("ST_INIT\n");
+                printk("ST_INCALL\n");
                 break;
             case ST_ENDCALL:
+                printk("ST_ENDCALL\n");
                 fona->send("AT+CHUP");
                 break;
             case ST_RING:
-                printk("ST_INIT\n");
+                printk("ST_RING\n");
                 break;
             case ST_TAKECALL:
-                printk("ST_INIT\n");
+                printk("ST_TAKECALL\n");
                 fona->send("ATA");
                 break;
         }
     }
     return processed;
 }
-void Dial::onResponse(string text){
+void Dial::onResponse(char * text){
+    char textbeginning[15];
+    memset(textbeginning, 0, sizeof(textbeginning));
+    // printk(text);
+    // if(strcmp(text, "OK\r\r\n")){
+    //         XF::getInstance()->pushEvent(&ev);
+    //     }
+    printk("DATA: ");
+    //printk(s.c_str());
+    printk(text);
+    printk("\n");
     switch (state)
     {
     case ST_WAITOK:
-        if(text == "OK\r\n"){
+        if(strcmp(text, "OK\r\n")==0){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
     case ST_CHECKLOCK:
-        if(text=="+CPIN: SIM PIN\r\n"){
-            printk("locked");
+        if(strcmp(text, "+CPIN: SIM PIN\r\n")==0){
+            printk("locked\n");
             this->lo.setId((Event::evID)evLocked);
-        }else if(text=="READY"){
-            printk("unlocked");
-            this->lo.setId((Event::evID)evNoLock);
+            XF::getInstance()->pushEvent(&lo);
         }
-        XF::getInstance()->pushEvent(&lo);
+        if(strcmp(text, "+CPIN: READY\r\n")==0){
+            printk("unlocked\n");
+            this->lo.setId((Event::evID)evNoLock);
+            XF::getInstance()->pushEvent(&lo);
+        }
         break;
     case ST_IDLE:
-        if(text=="RING"){
+        if(strcmp(text, "RING\r\n")==0){
             XF::getInstance()->pushEvent(&rg);
         }
         break;
     case ST_TAKECALL:
-        if(text=="VOICE CALL: BEGIN"){
+        if(strcmp(text, "VOICE CALL: BEGIN\r\n")==0){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
     case ST_INCALL:
-        if(text=="VOICE CALL: END"){
+        strncpy(textbeginning, text, 15);
+        if(strcmp(textbeginning, "VOICE CALL: END")==0){
             XF::getInstance()->pushEvent(&ed);
         }
         break;
     case ST_ENDCALL:
-        if(text=="VOICE CALL: END"){
+        strncpy(textbeginning, text, 15);
+        if(strcmp(textbeginning, "VOICE CALL: END")==0){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
