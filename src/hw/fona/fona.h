@@ -29,7 +29,8 @@ public:
 private:
     UART* uart; 
     vector<IFonaObserver*> subscribers;
-    uint8_t data[MAXDATASIZE];
+    char data[MAXDATASIZE];
+    string s;
 };
 
 #endif

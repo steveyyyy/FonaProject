@@ -1,4 +1,7 @@
 #include "dial.h"
+#include <string>
+
+using namespace std;
 
 void Dial::onTimeout(struct k_timer* t){
     printk("timer over\n");
@@ -325,6 +328,7 @@ void Dial::onResponse(char * text){
         }
         break;
     case ST_ENDCALL:
+        string testStr2(text);
         strncpy(textbeginning, text, 15);
         if(strcmp(textbeginning, "VOICE CALL: END")==0){
             XF::getInstance()->pushEvent(&ev);

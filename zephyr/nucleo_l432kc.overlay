@@ -2,3 +2,7 @@
 			status = "ok";
 			current-speed = <38400>;
 		};
+		&usart2 {
+			status = "ok";
+			current-speed = <9600>;
+		};
