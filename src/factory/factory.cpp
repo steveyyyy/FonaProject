@@ -56,12 +56,13 @@ void Factory::init() {
     ntrpt.pp.dev = pSwitchhook()->getDriver();
     im()->enableInt(ntrpt);
 
-    rotary()->initHW();
+    
     
     ledGreen()->initHW();
     ledRed()->initHW();
     
     switchhook()->initHW();
+    rotary()->initHW();
     //error happens here
     //uart()->subscribe(fona()); 
     //init UART
@@ -80,7 +81,6 @@ void Factory::build() {
 void Factory::start() {
     rotary()->startBehaviour();
     switchhook()->startBehaviour();
-    uart()->startBehaviour(); 
     dialer()->startBehaviour();
 }
 
