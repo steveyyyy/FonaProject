@@ -209,7 +209,7 @@ void RotaryDial::onInterrupt(u32_t pin) {
             XF::getInstance()->pushEvent(&wd);
         }
     }
-    if(pin==(u32_t)number->getPin()){
+    else if(pin==(u32_t)number->getPin()){
         if(number->read()==GPIO::PIN_ON){      
             XF::getInstance()->pushEvent(&pu);
         }
