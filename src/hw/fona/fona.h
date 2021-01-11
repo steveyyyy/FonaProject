@@ -16,7 +16,7 @@ public:
     class IFonaObserver
     {
         public:
-        virtual void onResponse(char* message) = 0;
+        virtual void onResponse(string message) = 0;
     };
 
     Fona(UART* uart);
@@ -26,11 +26,13 @@ public:
     void notify();
     void send(string command);
     void onMessage(k_msgq* messages);
+    string message;
 private:
     UART* uart; 
     vector<IFonaObserver*> subscribers;
     char data[MAXDATASIZE];
-    string s;
+    
+    void convertToString();
 };
 
 #endif

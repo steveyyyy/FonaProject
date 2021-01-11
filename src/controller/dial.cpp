@@ -281,7 +281,8 @@ bool Dial::processEvent(Event* e){
     }
     return processed;
 }
-void Dial::onResponse(char * text){
+void Dial::onResponse(string message){
+    text = message;
     char textbeginning[15];
     memset(textbeginning, 0, sizeof(textbeginning));
     // printk(text);
@@ -290,47 +291,44 @@ void Dial::onResponse(char * text){
     //     }
     printk("DATA: ");
     //printk(s.c_str());
-    printk(text);
+    printk(text.c_str());
     printk("\n");
     switch (state)
     {
     case ST_WAITOK:
-        if(strcmp(text, "OK\r\n")==0){
+        if(text.compare("OK") == 0){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
     case ST_CHECKLOCK:
-        if(strcmp(text, "+CPIN: SIM PIN\r\n")==0){
+        if(text.compare("+CPIN: SIM PIN")==0){
             printk("locked\n");
             this->lo.setId((Event::evID)evLocked);
             XF::getInstance()->pushEvent(&lo);
         }
-        if(strcmp(text, "+CPIN: READY\r\n")==0){
+        if(text.compare("+CPIN: READY")==0){
             printk("unlocked\n");
             this->lo.setId((Event::evID)evNoLock);
             XF::getInstance()->pushEvent(&lo);
         }
         break;
     case ST_IDLE:
-        if(strcmp(text, "RING\r\n")==0){
+        if(text.compare("RING")==0){
             XF::getInstance()->pushEvent(&rg);
         }
         break;
     case ST_TAKECALL:
-        if(strcmp(text, "VOICE CALL: BEGIN\r\n")==0){
+        if(text.compare("VOICE CALL: BEGIN\r\n")==0){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
     case ST_INCALL:
-        strncpy(textbeginning, text, 15);
-        if(strcmp(textbeginning, "VOICE CALL: END")==0){
+        if(text.rfind("VOICE CALL: END")==0){
             XF::getInstance()->pushEvent(&ed);
         }
         break;
     case ST_ENDCALL:
-        string testStr2(text);
-        strncpy(textbeginning, text, 15);
-        if(strcmp(textbeginning, "VOICE CALL: END")==0){
+        if(text.rfind("VOICE CALL: END")==0){
             XF::getInstance()->pushEvent(&ev);
         }
         break;

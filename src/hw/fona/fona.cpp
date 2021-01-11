@@ -5,7 +5,7 @@ Fona::Fona(UART* uart)
     this->uart=uart;
     //Error doesn happen here
     this->uart->subscribe(this);
-    s="";
+    message="";
 }
 
 Fona::~Fona(){}
@@ -40,18 +40,39 @@ void Fona::notify()
     vector<IFonaObserver*>::iterator it;
     for (it=subscribers.begin(); it!=subscribers.end();++it)
     {
-        (*it)->onResponse((char*)data);
+        (*it)->onResponse(message);
     }
 }
 
-void Fona::onMessage(k_msgq* messages){  
+void Fona::onMessage(k_msgq* messages){
+    // string s="2398475923847593284sadfhaskljdfnksajdfnaslkjdnf";
+    // printk(s.c_str());  
     k_msgq_get(messages, &data, K_NO_WAIT);
-    //int key = irq_lock();
-    s="                 ";//only 15 char for some reasons reasons found need to declare this thing in fona.h
-    //irq_unlock(key);      //printk to loggin 
-    char textbeginning[2] = {0};
-    strncpy(textbeginning, data, 2);
-    if(!(strcmp(textbeginning,"\r\n")==0)){
+    //convertToString();
+    message=string("MISSED_CALL: 08:40AM 0788903126");
+    //printk(message.c_str());
+    //printk to loggin 
+    // char textbeginning[2] = {0};
+    // strncpy(textbeginning, data, 2);
+    if(message!=""){
         notify();
     }
+}
+
+void Fona::convertToString()
+{ 
+    bool condition= true;
+    int i=0;
+    message = "";
+    while(condition){
+        if(data[i]==0x0D){
+            condition=false;
+            break;
+        }
+        else{
+            message = message + (char)data[i];
+            i++;
+        }
+    }
+    //message="9834u598324753924875sakdjnflasödjkf";
 }

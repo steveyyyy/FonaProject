@@ -48,7 +48,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         void onDigit(int digit);
         bool processEvent(Event* event);
         void startBehaviour();
-        void onResponse(char * text);
+        void onResponse(string text);
 
     private:
         Button* switchhook;
@@ -76,7 +76,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                         {"145","Toxinfo"}};
         struct k_timer* t;
         static void onTimeout(struct k_timer* t);
-        
+        string text;
         
         
 };
