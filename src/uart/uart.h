@@ -6,10 +6,11 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
+#include <string>
 
-#define MAXDATASIZE 40//32 //32 oder 28 anstatt 30 da es durch 4 teilbar ist
+#define MAXDATASIZE 32//32 //32 oder 28 anstatt 30 da es durch 4 teilbar ist
 
-
+using namespace std;
 
 class UART: public IReactive 
 {
@@ -37,15 +38,10 @@ class UART: public IReactive
         void notify();
 
         bool processEvent(Event* e);
-        void startBehaviour();
 
         typedef enum uartEvents{  evResponse=200,
                                     } uartEvents;
 
-        typedef enum UARTSTATE {    ST_INIT,
-                                    ST_IDLE,
-                                    ST_RECEIVE
-                                 } UARTSTATE;
     private:
         const struct device* uart_dev;  /**< device structur driver */ 
         struct uart_config uart_cfg;    /**< UART configuration */
@@ -59,8 +55,6 @@ class UART: public IReactive
         uint8_t endOfMessage;
         vector<IUARTObserver*> subscribers;
         Event rp; //response event
-        Event ev; //default/initial event
-        UARTSTATE state;
 };
 
 #endif

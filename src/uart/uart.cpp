@@ -10,9 +10,6 @@ UART::UART(const char* deviceBinding,int baudrate, uint8_t endOfMessage){
     //Config Message Queue
     k_msgq_init(&messages, messages_buffer, sizeof(uint8_t[MAXDATASIZE]), 10);
 
-    this->ev.setTarget(this);
-    this->ev.setDnd(true);
-
     this->rp.setTarget(this);
     this->rp.setDnd(true);
     this->rp.setId((Event::evID)evResponse);
@@ -54,8 +51,7 @@ bool UART::enableRXInterrupt(){
 
 void UART::uartSend(const char* txData) 
 {
-    u8_t txSize = strlen(txData);
-    for (int i=0; i<txSize; i++)
+    for (size_t i=0; i<strlen(txData); i++)
     {
         uart_poll_out(uart_dev, txData[i]);
     };
@@ -130,54 +126,10 @@ void UART::notify()
 }
 
 bool UART::processEvent(Event* e){
-    bool processed =true;
-    UARTSTATE oldState = state;
+    bool processed =false;
     if(e->getId()==(Event::evID)evResponse){
                 notify();
-                ev.setId(Event::evDefault);
-                XF::getInstance()->pushEvent(&ev);
+                processed=true;
             }
-    // switch (state)
-    // {
-    // case ST_INIT:
-    //     if(e->getId()==Event::evInitial){
-    //         state=ST_IDLE;
-    //     }
-    //     break;
-    // case ST_IDLE:
-    //     if(e->getId()==(Event::evID)evResponse){
-    //         state=ST_RECEIVE;
-    //     }
-    //     break;
-    // case ST_RECEIVE:
-    //     if(e->getId()==Event::evDefault){
-    //         state=ST_IDLE;
-    //     }
-    //     break;
-    // }
-    // if(oldState!=state)
-    // {
-    //     processed=true;
-    //     switch (state){
-    //         case ST_INIT:
-    //             break;
-    //         case ST_IDLE:
-    //             //printk("uart idle\n");
-    //             break;
-    //         case ST_RECEIVE:
-    //             //printk("uart recive\n");
-    //             uint8_t data[MAXDATASIZE];
-    //             k_msgq_get(&messages, &data, K_FOREVER);
-    //             notify(data);
-    //             ev.setId(Event::evDefault);
-    //             XF::getInstance()->pushEvent(&ev);
-    //             break;
-    //     }
-    // }
     return processed;
-}
-void UART::startBehaviour(){
-    state=ST_INIT;
-    ev.setId(Event::evInitial);
-    XF::getInstance()->pushEvent(&ev);
 }
