@@ -2,7 +2,7 @@
 #include <drivers/gpio.h>
 #include <vector>
 #include <map>
-#include <string.h>
+
 using namespace std;
 
 
