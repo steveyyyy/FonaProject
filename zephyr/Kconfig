@@ -1,0 +1,9 @@
+menu "FONA"
+config FONA_DIALER_LOG_LEVEL
+	int "Dialer Log Level"
+	default 0
+endmenu
+
+menu "Zephyr Kernel"
+source "$ZEPHYR_BASE/Kconfig.zephyr"
+endmenu

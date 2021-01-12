@@ -1,5 +1,7 @@
 #include "dial.h"
 #include <string>
+#include <logging/log.h>
+LOG_MODULE_REGISTER(fona_dialer, CONFIG_FONA_DIALER_LOG_LEVEL);
 
 using namespace std;
 
@@ -222,6 +224,7 @@ bool Dial::processEvent(Event* e){
                 fona->send("AT+CPIN="+number);
                 break;
             case ST_IDLE:
+                LOG_INF("LOG_IDLE_ST");
                 printk("ST_IDLE\n");
                 ledGreen->off();
                 ledRed->off();
