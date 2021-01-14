@@ -284,8 +284,7 @@ bool Dial::processEvent(Event* e){
     }
     return processed;
 }
-void Dial::onResponse(string message){
-    text = message;
+void Dial::onResponse(char * text){
     char textbeginning[15];
     memset(textbeginning, 0, sizeof(textbeginning));
     // printk(text);
@@ -294,44 +293,47 @@ void Dial::onResponse(string message){
     //     }
     printk("DATA: ");
     //printk(s.c_str());
-    printk(text.c_str());
+    printk(text);
     printk("\n");
     switch (state)
     {
     case ST_WAITOK:
-        if(text.compare("OK") == 0){
+        if(strcmp(text, "OK\r\n")==0){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
     case ST_CHECKLOCK:
-        if(text.compare("+CPIN: SIM PIN")==0){
+        if(strcmp(text, "+CPIN: SIM PIN\r\n")==0){
             printk("locked\n");
             this->lo.setId((Event::evID)evLocked);
             XF::getInstance()->pushEvent(&lo);
         }
-        if(text.compare("+CPIN: READY")==0){
+        if(strcmp(text, "+CPIN: READY\r\n")==0){
             printk("unlocked\n");
             this->lo.setId((Event::evID)evNoLock);
             XF::getInstance()->pushEvent(&lo);
         }
         break;
     case ST_IDLE:
-        if(text.compare("RING")==0){
+        if(strcmp(text, "RING\r\n")==0){
             XF::getInstance()->pushEvent(&rg);
         }
         break;
     case ST_TAKECALL:
-        if(text.compare("VOICE CALL: BEGIN\r\n")==0){
+        if(strcmp(text, "VOICE CALL: BEGIN\r\n")==0){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
     case ST_INCALL:
-        if(text.rfind("VOICE CALL: END")==0){
+        strncpy(textbeginning, text, 15);
+        if(strcmp(textbeginning, "VOICE CALL: END")==0){
             XF::getInstance()->pushEvent(&ed);
         }
         break;
     case ST_ENDCALL:
-        if(text.rfind("VOICE CALL: END")==0){
+        string testStr2(text);
+        strncpy(textbeginning, text, 15);
+        if(strcmp(textbeginning, "VOICE CALL: END")==0){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
