@@ -37,8 +37,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                     evOnDigit,
                                     evDial,
                                     evRing,
-                                    evRingStop,
-                                    evHangUp
+                                    evRingStop
                                  } dialerEvents;
         Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona);
         ~Dial();
@@ -67,7 +66,6 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         Event dl; //Dial event
         Event rg; //Ring event
         Event rs; //Stop Ring event
-        Event ed; //Event end call (other person hangs up)
         string emergencyNumbers[6][2]={ {"112","Notruf"},
                                         {"117","Polizei"},
                                         {"118","Feuerwehr"},
@@ -76,9 +74,6 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                         {"145","Toxinfo"}};
         struct k_timer* t;
         static void onTimeout(struct k_timer* t);
-        
-        
-        
 };
 
 #endif

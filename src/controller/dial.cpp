@@ -60,10 +60,6 @@ Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona){
     this->rs.setDnd(true);
     this->rs.setId((Event::evID)evRingStop);
 
-    this->ed.setTarget(this);
-    this->ed.setDnd(true);
-    this->ed.setId((Event::evID)evHangUp);
-
     t=(struct k_timer*) k_malloc(sizeof(struct k_timer));
     k_timer_init(t, &Dial::onTimeout, NULL);
     k_timer_user_data_set(t,&dl);
@@ -175,7 +171,7 @@ bool Dial::processEvent(Event* e){
             if(e->getId()==(Event::evID)evHookDown){
                 state=ST_ENDCALL;  
             }
-            if(e->getId()==(Event::evID)evHangUp){
+            if(e->getId()==Event::evDefault){
                 state=ST_IDLE;  
             }
             break;
@@ -189,7 +185,7 @@ bool Dial::processEvent(Event* e){
                 this->state = ST_TAKECALL;
             }
             if (e->getId() == (Event::evID)evRingStop){
-                this->state = ST_TAKECALL;
+                this->state = ST_IDLE;
             }
             break;
         case ST_TAKECALL:
@@ -285,14 +281,7 @@ bool Dial::processEvent(Event* e){
     return processed;
 }
 void Dial::onResponse(char * text){
-    char textbeginning[15];
-    memset(textbeginning, 0, sizeof(textbeginning));
-    // printk(text);
-    // if(strcmp(text, "OK\r\r\n")){
-    //         XF::getInstance()->pushEvent(&ev);
-    //     }
     printk("DATA: ");
-    //printk(s.c_str());
     printk(text);
     printk("\n");
     switch (state)
@@ -319,21 +308,20 @@ void Dial::onResponse(char * text){
             XF::getInstance()->pushEvent(&rg);
         }
         break;
+    case ST_RING:
+        if(strncmp(text, "MISSED_CALL:", 12)==0){
+            XF::getInstance()->pushEvent(&rs);
+        }
+        break;
+    case ST_DIAL:    
     case ST_TAKECALL:
         if(strcmp(text, "VOICE CALL: BEGIN\r\n")==0){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
     case ST_INCALL:
-        strncpy(textbeginning, text, 15);
-        if(strcmp(textbeginning, "VOICE CALL: END")==0){
-            XF::getInstance()->pushEvent(&ed);
-        }
-        break;
     case ST_ENDCALL:
-        string testStr2(text);
-        strncpy(textbeginning, text, 15);
-        if(strcmp(textbeginning, "VOICE CALL: END")==0){
+        if(strncmp(text, "VOICE CALL: END", 15)==0){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
