@@ -134,6 +134,9 @@ bool Dial::processEvent(Event* e){
             if (e->getId() == Event::evDefault){
                 this->state = ST_CHECKLOCK;
             }
+            if (e->getId() == (Event::evID)evNoLock){
+                this->state = ST_IDLE;
+            }
             break;
         case ST_IDLE:
             if(e->getId()==(Event::evID)evHookUp){
@@ -207,6 +210,7 @@ bool Dial::processEvent(Event* e){
                 break;
             case ST_CHECKLOCK:
                 printk("ST_CHECKLOCK\n");
+                deleteNumber();
                 fona->send("AT+CPIN?");
                 break;
             case ST_LOCKED:
@@ -214,7 +218,6 @@ bool Dial::processEvent(Event* e){
                 listenOnDigits=true;
                 break;
             case ST_UNLOCK:
-                XF::getInstance()->pushEvent(&ev);
                 printk("ST_UNLOCK\n");
                 listenOnDigits=false;
                 fona->send("AT+CPIN="+number);
@@ -288,6 +291,15 @@ void Dial::onResponse(char * text){
     {
     case ST_WAITOK:
         if(strcmp(text, "OK\r\n")==0){
+            XF::getInstance()->pushEvent(&ev);
+        }
+        break;
+    case ST_UNLOCK:
+        if(strcmp(text, "OK\r\n")==0){
+            this->lo.setId((Event::evID)evNoLock);
+            XF::getInstance()->pushEvent(&lo);
+        }
+        if((strcmp(text, "ERROR\r\n")==0) || (strncmp(text, "+CME ERROR:", 11)==0)){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
