@@ -30,7 +30,6 @@ private:
     UART* uart; 
     vector<IFonaObserver*> subscribers;
     char data[MAXDATASIZE];
-    string s;
 };
 
 #endif
