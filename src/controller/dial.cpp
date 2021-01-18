@@ -8,7 +8,7 @@ using namespace std;
 void Dial::onTimeout(struct k_timer* t){
     LOG_INF("Timer timeout");
     Event* nf;
-    nf = (Event*) k_timer_user_data_get(t);
+    nf = static_cast<Event*>(k_timer_user_data_get(t));
     XF::getInstance()->pushEvent(nf);
 }
 
