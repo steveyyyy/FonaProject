@@ -23,6 +23,12 @@ config CLICKER_LOG_LEVEL
 config UART_LOG_LEVEL
 	int "Uart Log Level"
 	default 0
+config GPI_LOG_LEVEL
+	int "GPI Log Level"
+	default 0
+config GPO_LOG_LEVEL
+	int "GPO Log Level"
+	default 0
 endmenu
 
 menu "Zephyr Kernel"

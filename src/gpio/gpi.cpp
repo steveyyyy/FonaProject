@@ -1,4 +1,6 @@
 #include "gpi.h"
+#include <logging/log.h>
+LOG_MODULE_REGISTER(gpi, CONFIG_GPI_LOG_LEVEL);
 
 //initialize statics
 /**
@@ -42,6 +44,9 @@ void GPI::initHW()
         break;
     }
     ret = gpio_pin_configure(this->driver,this->pin,this->config);
+    if (ret != 0) {
+		LOG_ERR("Cannot configure GPI");
+	}
 }
 
 /**

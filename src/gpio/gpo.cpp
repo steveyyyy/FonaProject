@@ -1,4 +1,6 @@
 #include "gpo.h"
+#include <logging/log.h>
+LOG_MODULE_REGISTER(gpo, CONFIG_GPO_LOG_LEVEL);
 
 /**
  * @brief Construct a new GPO object
@@ -66,6 +68,9 @@ void GPO::initHW()
     }
     int ret = 0;
     ret = gpio_pin_configure(this->driver,this->pin,this->config);
+    if (ret != 0) {
+		LOG_ERR("Cannot configure GPO");
+	}
 }
 
 /**
@@ -149,4 +154,7 @@ void GPO::set(PINSTATE state)
 {
     int ret = 0;
     ret =   gpio_pin_set(this->driver,this->pin,state);
+    if (ret != 0) {
+		LOG_WRN("Cannot change GPO pin");
+	}
 }
