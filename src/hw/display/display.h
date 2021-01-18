@@ -4,10 +4,10 @@
 #ifndef DISPLAY_ONCE
 #define DISPLAY_ONCE
 
-class Display
+class Display : public UART::IUARTObserver
 {
 public:
-    Display(const char* deviceBinding,int baudrate,u8_t command, u8_t specialCommand);
+    Display(UART* uart, u8_t command, u8_t specialCommand);
     ~Display();
     void initHW();
     void clearDispaly();
@@ -17,14 +17,9 @@ public:
     void setCursorPosition(u8_t position);
     void changeSplashScreen(char* splashScreen);
 private:
+    UART* uart;
     u8_t command;
-    u8_t specialCommand;  
-    int baudrateOptions[6]={2400, 
-                            4800, 
-                            9600, 
-                            4400, 
-                            19200, 
-                            38400};                       
+    u8_t specialCommand;
 };
 
 #endif

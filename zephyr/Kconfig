@@ -29,6 +29,9 @@ config GPI_LOG_LEVEL
 config GPO_LOG_LEVEL
 	int "GPO Log Level"
 	default 0
+config DISPLAY_LOG_LEVEL
+	int "Display Log Level"
+	default 0
 endmenu
 
 menu "Zephyr Kernel"
