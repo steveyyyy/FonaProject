@@ -61,7 +61,7 @@ void UART::uartSend(const char* txData)
 
 void UART::uartReceive(const struct device *uart_dev, void *data){
     uint8_t recvData = 0;
-    UART* thisUART = (UART*)data;
+    UART* thisUART = static_cast<UART*>(data);
     
     if (!uart_irq_update(uart_dev))
     {

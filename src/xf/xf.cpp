@@ -87,7 +87,7 @@ void XF::execute() {
  */
 void XF::onTimeout(struct k_timer* t) {
     Event* e;
-    e = (Event*) k_timer_user_data_get(t);
+    e = static_cast<Event*>(k_timer_user_data_get(t));
     e->setDelay(0);
     XF::getInstance()->pushEvent(e);
     k_free(t);
@@ -101,7 +101,7 @@ void XF::onTimeout(struct k_timer* t) {
  */
 void XF::onStop(struct k_timer* t) {
     Event* e;
-    e = (Event*) k_timer_user_data_get(t);
+    e = static_cast<Event*>(k_timer_user_data_get(t));
     if (e->getDnd() == 0)
     {
         k_free(e);
