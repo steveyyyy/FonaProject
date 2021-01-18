@@ -30,7 +30,7 @@ public:
 
     typedef enum BUTTONSTATES {ST_INIT,ST_DEBOUNCE,ST_DECIDE, ST_PRESSED, ST_RELEASED} BUTTONSTATES; /**< enum states of a button */
 
-    Button(GPI* pin);
+    explicit Button(GPI* pin);
     ~Button();
     void initHW();
     bool processEvent(Event* e) override;

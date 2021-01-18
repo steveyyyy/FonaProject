@@ -9,7 +9,7 @@
 class Blinker : public IReactive
 {
 public:
-    Blinker(int blinkDelay);
+    explicit Blinker(int blinkDelay);
     Blinker(int blinkDelayOn, int blinkDelayOff);
     ~Blinker(); 
     void start();

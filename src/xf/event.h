@@ -9,7 +9,7 @@ class Event
 public:
     typedef enum evID {evNone, evInitial, evTimeout, evDefault, evPressed, evReleased, evInt } evID;
     Event(/* args */);
-    Event(evID eventID);
+    explicit Event(evID eventID);
     ~Event();
     void setTarget(IReactive* target);
     IReactive* getTarget();

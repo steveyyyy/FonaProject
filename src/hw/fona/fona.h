@@ -19,7 +19,7 @@ public:
         virtual void onResponse(char* message) = 0;
     };
 
-    Fona(UART* uart);
+    explicit Fona(UART* uart);
     ~Fona();
     void subscribe(IFonaObserver* subscriber);
     void unsubscribe(IFonaObserver* subscriber);
