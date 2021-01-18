@@ -1,6 +1,27 @@
 menu "FONA"
-config FONA_DIALER_LOG_LEVEL
+config DIALER_LOG_LEVEL
 	int "Dialer Log Level"
+	default 0
+config GPIO_LOG_LEVEL
+	int "GPIO Log Level"
+	default 0
+config FLASHING_LIGHT_LOG_LEVEL
+	int "Flashing light Log Level"
+	default 0
+config INTMANAGER_LOG_LEVEL
+	int "Intmanager Log Level"
+	default 0
+config ROTARYDIAL_LOG_LEVEL
+	int "Rotarydial Log Level"
+	default 0
+config BUTTON_LOG_LEVEL
+	int "Button Log Level"
+	default 0
+config CLICKER_LOG_LEVEL
+	int "Clicker Log Level"
+	default 0
+config UART_LOG_LEVEL
+	int "Uart Log Level"
 	default 0
 endmenu
 

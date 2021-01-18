@@ -1,6 +1,8 @@
 /* this is the interrupt manager class */
 #include "intmanager.h"
 #include <algorithm>
+#include <logging/log.h>
+LOG_MODULE_REGISTER(intmanager, CONFIG_INTMANAGER_LOG_LEVEL);
 using namespace std;
 
 //this is the singleton instance
@@ -55,7 +57,7 @@ void IntManager::enableInt(Interrupt ntrpt)
     }
     else
     {
-        printk("device binding for %x invalid\n",(unsigned int) ntrpt.pp.dev);
+        LOG_ERR("device binding for %x invalid\n",(unsigned int) ntrpt.pp.dev);
     }
 }
 
@@ -72,7 +74,7 @@ void IntManager::disableInt(Interrupt ntrpt)
     }
     else
     {
-        printk("device binding for %x invalid\n",(unsigned int) ntrpt.pp.dev);
+        LOG_ERR("device binding for %x invalid\n",(unsigned int) ntrpt.pp.dev);
     }    
 }
 
@@ -87,7 +89,7 @@ void IntManager::subscribe(Subscription sub)
     it = find(subscriptions.begin(), subscriptions.end(),sub);
     if (it != subscriptions.end())
     {
-        printk("subscription already exists\n");
+        LOG_WRN("subscription already exists\n");
     }
     else
     {
@@ -128,7 +130,7 @@ void IntManager::subscribe(Subscription sub)
         }
         else
         {
-            printk("device binding for %x invalid\n",(unsigned int) sub.pp.dev);
+            LOG_ERR("device binding for %x invalid\n",(unsigned int) sub.pp.dev);
         }
     }
 }
@@ -170,17 +172,17 @@ void IntManager::unsubscribe(Subscription sub)
             }
             else
             {
-                printk("no such device (%x) found in pinmap\n",(unsigned int) sub.pp.dev);
+                LOG_ERR("no such device (%x) found in pinmap\n",(unsigned int) sub.pp.dev);
             }
         }
         else
         {
-            printk("device binding for %x invalid\n",(unsigned int) sub.pp.dev);
+            LOG_ERR("device binding for %x invalid\n",(unsigned int) sub.pp.dev);
         }
     }
     else
     {
-        printk("no such subscription\n");
+        LOG_ERR("no such subscription\n");
     }
 }
 

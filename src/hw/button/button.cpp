@@ -1,6 +1,8 @@
 /* this is the Button class */
 #include "button.h"
 #include <algorithm>
+#include <logging/log.h>
+LOG_MODULE_REGISTER(button, CONFIG_BUTTON_LOG_LEVEL);
 using namespace std;
 
 /**
@@ -166,28 +168,28 @@ bool Button::processEvent(Event* e)
         switch (this->state)
         {
             case ST_INIT:
-                printk("INIT\n");
+                LOG_INF("ST_INIT");
             break;
             case ST_DEBOUNCE:
-                printk("DEBOUNCE\n");
+                LOG_INF("ST_DEBOUNCE");
                 tm.setId(Event::evTimeout);
                 tm.setDelay(DEBOUNCEDELAY);
                 XF::getInstance()->pushEvent(&tm);
             break;
             case ST_DECIDE:
-                printk("DECIDE\n");
+                LOG_INF("ST_DECIDE");
                 ev.setId(Event::evDefault);
                 ev.setDelay(0);
                 XF::getInstance()->pushEvent(&ev);
             break;
             case ST_PRESSED:
-                printk("PRESSED\n");
-                printk("Button %02d(%d) pressed\n", this->pin->getPin(),this->pin->getUId());
+                LOG_INF("ST_PRESSED");
+                LOG_INF("Button %02d(%d) pressed", this->pin->getPin(),this->pin->getUId());
                 notify();
             break;
             case ST_RELEASED:
-                printk("RELEASED\n");
-                printk("Button %02d(%d) released\n", this->pin->getPin(),this->getId());
+                LOG_INF("ST_RELEASED");
+                LOG_INF("Button %02d(%d) released", this->pin->getPin(),this->getId());
                 notify();
             break;
         }

@@ -1,12 +1,12 @@
 #include "dial.h"
 #include <string>
 #include <logging/log.h>
-LOG_MODULE_REGISTER(fona_dialer, CONFIG_FONA_DIALER_LOG_LEVEL);
+LOG_MODULE_REGISTER(dialer, CONFIG_DIALER_LOG_LEVEL);
 
 using namespace std;
 
 void Dial::onTimeout(struct k_timer* t){
-    printk("timer over\n");
+    LOG_INF("Timer timeout");
     Event* nf;
     nf = (Event*) k_timer_user_data_get(t);
     XF::getInstance()->pushEvent(nf);
@@ -209,22 +209,21 @@ bool Dial::processEvent(Event* e){
             case ST_WAITOK:
                 break;
             case ST_CHECKLOCK:
-                printk("ST_CHECKLOCK\n");
+                LOG_INF("ST_CHECKLOCK");
                 deleteNumber();
                 fona->send("AT+CPIN?");
                 break;
             case ST_LOCKED:
-                printk("ST_LOCKED\n");
+                LOG_INF("ST_LOCKED");
                 listenOnDigits=true;
                 break;
             case ST_UNLOCK:
-                printk("ST_UNLOCK\n");
+                LOG_INF("ST_UNLOCK");
                 listenOnDigits=false;
                 fona->send("AT+CPIN="+number);
                 break;
             case ST_IDLE:
-                LOG_INF("LOG_IDLE_ST");
-                printk("ST_IDLE\n");
+                LOG_INF("ST_IDLE");
                 ledGreen->off();
                 ledRed->off();
                 listenOnDigits=false;
@@ -232,16 +231,15 @@ bool Dial::processEvent(Event* e){
                 break;
             case ST_DIALING:
                 ledRed->on();
-                printk("ST_DIALING\n");
+                LOG_INF("ST_DIALING");
                 listenOnDigits=true;
                 if(number.length()>=3){
-                    printk("timer startet\n");
+                    LOG_INF("Timer started");
                     k_timer_start(t,K_MSEC(5000), K_MSEC(0));
                 }
                 break;
             case ST_VALIDATEDIGIT:
-                printk("ST_VALIDATEDIGIT\n");
-                //button can be added to stop timer
+                LOG_INF("ST_VALIDATEDIGIT");
                 k_timer_stop(t);
                 listenOnDigits=false;
                 for(string *emergencyNumber: emergencyNumbers){
@@ -258,25 +256,24 @@ bool Dial::processEvent(Event* e){
                 break;
             case ST_DIAL:
                 listenOnDigits=false;
-                printk("ST_DIAL\n");
+                LOG_INF("ST_DIAL");
                 fona->send("ATD"+number+"i;");
-                printk(number.c_str());
-                printk("\n");
+                LOG_INF("%s", number.c_str());
                 ledRed->off();
                 ledGreen->on();
                 break;
             case ST_INCALL:
-                printk("ST_INCALL\n");
+                LOG_INF("ST_INCALL");
                 break;
             case ST_ENDCALL:
-                printk("ST_ENDCALL\n");
+                LOG_INF("ST_ENDCALL");
                 fona->send("AT+CHUP");
                 break;
             case ST_RING:
-                printk("ST_RING\n");
+                LOG_INF("ST_RING");
                 break;
             case ST_TAKECALL:
-                printk("ST_TAKECALL\n");
+                LOG_INF("ST_TAKECALL");
                 fona->send("ATA");
                 break;
         }
@@ -284,11 +281,15 @@ bool Dial::processEvent(Event* e){
     return processed;
 }
 void Dial::onResponse(char * text){
-    printk("DATA: ");
-    printk(text);
-    printk("\n");
+    LOG_INF("DATA: %s", text);
     switch (state)
     {
+    case ST_INIT:
+    case ST_SETUP:
+    case ST_LOCKED:
+    case ST_DIALING:
+    case ST_VALIDATEDIGIT:
+        break;
     case ST_WAITOK:
         if(strcmp(text, "OK\r\n")==0){
             XF::getInstance()->pushEvent(&ev);
@@ -305,12 +306,12 @@ void Dial::onResponse(char * text){
         break;
     case ST_CHECKLOCK:
         if(strcmp(text, "+CPIN: SIM PIN\r\n")==0){
-            printk("locked\n");
+            LOG_INF("SIM: LOCKED");
             this->lo.setId((Event::evID)evLocked);
             XF::getInstance()->pushEvent(&lo);
         }
         if(strcmp(text, "+CPIN: READY\r\n")==0){
-            printk("unlocked\n");
+            LOG_INF("SIM: UNLOCKED");
             this->lo.setId((Event::evID)evNoLock);
             XF::getInstance()->pushEvent(&lo);
         }

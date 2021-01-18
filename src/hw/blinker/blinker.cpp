@@ -1,4 +1,6 @@
 #include "blinker.h"
+#include <logging/log.h>
+LOG_MODULE_REGISTER(flashing_light, CONFIG_FLASHING_LIGHT_LOG_LEVEL);
 
 Blinker::Blinker(int blinkDelay) {
     in.setTarget(this);
@@ -35,7 +37,6 @@ void Blinker::start() {
 void Blinker::stop() {
     this->state = ST_OFF;
     this->led->off();
-    printk("LED OFF\n");
     in.setId(Event::evInitial);
     in.setDelay(0);
     XF::getInstance()->pushEvent(&in);
@@ -62,7 +63,6 @@ bool Blinker::processEvent(Event* e) {
     case ST_NONE:
         break;
     case ST_INIT:
-        printk("ST_INIT\n");
         if (e->getId() == Event::evInitial)
         {
             state = ST_ON;
@@ -70,7 +70,6 @@ bool Blinker::processEvent(Event* e) {
 
         break;
     case ST_ON:
-        printk("ST_ON\n");
         if (e->getId() == Event::evTimeout)
         {
             state = ST_OFF;
@@ -78,7 +77,6 @@ bool Blinker::processEvent(Event* e) {
         
         break;
     case ST_OFF:
-        printk("ST_OFF\n");
         if (e->getId() == Event::evTimeout)
         {
             state = ST_ON;
@@ -89,19 +87,21 @@ bool Blinker::processEvent(Event* e) {
         switch (state)
         {
         case ST_INIT:
+            LOG_INF("ST_INIT");
             break;
         case ST_NONE:
+            LOG_INF("ST_NONE");
             break;
         case ST_ON:
+            LOG_INF("ST_ON");
             led->on();
-            printk("LED ON\n");
             tm.setId(Event::evTimeout);
             tm.setDelay(blinkDelayOn);
             XF::getInstance()->pushEvent(&tm);
             break;
         case ST_OFF:
+            LOG_INF("ST_OFF");
             led->off();
-            printk("LED OFF\n");
             tm.setId(Event::evTimeout);
             tm.setDelay(blinkDelayOff);
             XF::getInstance()->pushEvent(&tm);
@@ -113,7 +113,6 @@ bool Blinker::processEvent(Event* e) {
 }
 
 void Blinker::startBehaviour() {
-    printk("starting behaviour of blinker...\n");
     in.setId(Event::evInitial);
     in.setDelay(0);
     XF::getInstance()->pushEvent(&in);

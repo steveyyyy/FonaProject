@@ -1,5 +1,7 @@
 #include "cobs.h"
 #include <algorithm>
+#include <logging/log.h>
+LOG_MODULE_REGISTER(clicker, CONFIG_CLICKER_LOG_LEVEL);
 
 /**
  * @brief Construct a new Click Observer object
@@ -107,11 +109,11 @@ void ClickObserver::onButton(int id, bool pressed)
 {
     if (pressed)
     {
-        printk("PRESSED");
+        LOG_INF("PRESSED");
         event.setId(Event::evPressed);
     }else
     {
-        printk("RELEASED");
+        LOG_INF("RELEASED");
         event.setId(Event::evReleased);
     }
     XF::getInstance()->pushEvent(&event);

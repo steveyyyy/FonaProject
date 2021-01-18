@@ -1,6 +1,8 @@
 /* this is the Button class */
 #include "gpio.h"
 #include <string.h>
+#include <logging/log.h>
+LOG_MODULE_REGISTER(gpio, CONFIG_GPIO_LOG_LEVEL);
 
 u8_t GPIO::uid = 0; /**< Initalize unique ID with 0*/
 
@@ -37,7 +39,7 @@ GPIO::~GPIO()
 void GPIO::initHW()
 {
     this->driver = device_get_binding(this->port);
-    //printk("driver of pin %d is %x\n", this->pin, this->driver);
+    LOG_INF("driver of pin %d is %s", this->pin, this->driver->name);
 }
 
 /**

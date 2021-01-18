@@ -1,5 +1,7 @@
 #include "rotarydial.h"
 //Powered by carina
+#include <logging/log.h>
+LOG_MODULE_REGISTER(rotarydial, CONFIG_ROTARYDIAL_LOG_LEVEL);
 
 
 
@@ -139,27 +141,27 @@ bool RotaryDial::processEvent(Event* e) {
         switch (state)
         {
         case ST_INIT:
-            printk("INIT\n");
+            LOG_INF("ST_INIT");
             break;
         case ST_WAITDIAL:
-            printk("WAITDIAL\n");
+            LOG_INF("ST_WAITDIAL");
             break;  
         case ST_DEBWINDUP:
-            printk("DEBWINDUP\n");
+            LOG_INF("ST_DEBWINDUP");
             digit=0;
             this->tm.setDelay(delay);
             XF::getInstance()->pushEvent(&tm);
             break;
         case ST_COUNTING:
-            printk("COUNTING\n");
+            LOG_INF("ST_COUNTING");
             break;
         case ST_DEBWINDDOWN:
-            printk("DEBWINDOWN\n");
+            LOG_INF("ST_DEBWINDDOWN");
             this->tm.setDelay(delay);
             XF::getInstance()->pushEvent(&tm);
             break;
         case ST_DECIDENOTIFY:
-            printk("DECIDENOTIFY\n");
+            LOG_INF("ST_DECIDENOTIFY");
             if(digit==0){
                 XF::getInstance()->pushEvent(&ev);
             }
@@ -168,31 +170,31 @@ bool RotaryDial::processEvent(Event* e) {
             }
             break;
         case ST_NOTIFY:
-            printk("NOTIFY\n");
+            LOG_INF("ST_NOTIFY");
             if(digit>=10){
                 digit=0;
             }
-            printk("%d\n",digit);
+            LOG_INF("Digit: %d",digit);
             XF::getInstance()->pushEvent(&ev);
             notify();
             break;
         case ST_DEBPULSEDOWN:
-            printk("DEBPULSEDOWN\n");
+            LOG_INF("ST_DEBPULSEDOWN");
             this->tm.setDelay(delay);
             XF::getInstance()->pushEvent(&tm);
             break;
         case ST_WAITPULSEUP:
-            printk("WAITPULSEUP\n");
+            LOG_INF("ST_WAITPULSEUP");
             break;
         case ST_DEBPULSEUP:
-            printk("DEBPULSEUP\n");
+            LOG_INF("ST_DEBPULSEUP");
             this->tm.setDelay(delay);
             XF::getInstance()->pushEvent(&tm);
             break;
         case ST_COUNT:
-            printk("COUNT\n");
+            LOG_INF("ST_COUNT");
             digit++;
-            printk("%d\n",digit);
+            LOG_INF("%d",digit);
             XF::getInstance()->pushEvent(&ev);
             break;
         }

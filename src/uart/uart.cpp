@@ -1,4 +1,6 @@
 #include "uart.h"
+#include <logging/log.h>
+LOG_MODULE_REGISTER(uartt, CONFIG_UART_LOG_LEVEL);
 
 UART::UART(const char* deviceBinding,int baudrate, uint8_t endOfMessage){
     uart_dev = NULL;
@@ -21,7 +23,7 @@ void UART::initHW(){
     //Get device
     uart_dev = device_get_binding(deviceBinding);
 	if (!uart_dev) {
-		printk("Cannot get UART device\n");
+		LOG_ERR("Cannot get UART device\n");
 	}
     //Config device
     uart_cfg.baudrate = baudrate;
@@ -32,14 +34,14 @@ void UART::initHW(){
 
     int ret = uart_configure(uart_dev, &uart_cfg);
 	if (ret != 0) {
-		printk("Cannot configure UART device\n");
+		LOG_ERR("Cannot configure UART device\n");
 	}
 }
 
 bool UART::enableRXInterrupt(){
     bool processed=false;
     if(!uart_dev){
-        printk("Problem to load uart device\n");
+        LOG_ERR("Problem to load uart device\n");
     }
     else{
         processed=true;
@@ -63,7 +65,7 @@ void UART::uartReceive(const struct device *uart_dev, void *data){
     
     if (!uart_irq_update(uart_dev))
     {
-        printk("retval should always be 1");
+        LOG_WRN("retval should always be 1");
         return;
     }
     else{
@@ -88,7 +90,7 @@ void UART::setBaudrate(int baudrate){
     uart_cfg.baudrate = baudrate;
     int ret = uart_configure(uart_dev, &uart_cfg);
 	if (ret != 0) {
-		printk("Cannot configure UART device\n");
+		LOG_WRN("Cannot configure UART device\n");
 	}
 }
 
