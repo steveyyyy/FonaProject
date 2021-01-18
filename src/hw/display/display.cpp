@@ -25,7 +25,7 @@ void Display::setCursorPosition(u8_t position){
     //     uartSend((char *)position);
     // }  
 }
-void Display::changeSplashScreen(string splashScreen){
+void Display::changeSplashScreen(char* splashScreen){
     setCursorPosition(0x00);
     // uartSend(splashScreen.c_str());
     // uartSend((char *)specialCommand);

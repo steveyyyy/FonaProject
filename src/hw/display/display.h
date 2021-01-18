@@ -1,6 +1,5 @@
 #include "../../uart/uart.h"
 #include <vector>
-#include <string>
 
 #ifndef DISPLAY_ONCE
 #define DISPLAY_ONCE
@@ -16,7 +15,7 @@ public:
     void updateBaudrate(int baudrate);
     void setBacklight(u8_t brightness);
     void setCursorPosition(u8_t position);
-    void changeSplashScreen(string splashScreen);
+    void changeSplashScreen(char* splashScreen);
 private:
     u8_t command;
     u8_t specialCommand;  
