@@ -25,7 +25,7 @@ public:
     void unsubscribe(IFonaObserver* subscriber);
     void notify();
     void send(string command);
-    void onMessage(k_msgq* messages);
+    void onMessage(k_msgq* messages) override;
 private:
     UART* uart; 
     vector<IFonaObserver*> subscribers;

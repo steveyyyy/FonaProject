@@ -32,8 +32,8 @@ public:
     void subscribe(IClickObserver* subscriber);
     void unsubscribe(IClickObserver* subscriber);
     void notify();
-    void onButton(int id, bool pressed);
-    bool processEvent(Event* e);
+    void onButton(int id, bool pressed) override;
+    bool processEvent(Event* e) override;
     void startBehavior();
     
 private:

@@ -37,7 +37,7 @@ class UART: public IReactive
         void unsubscribe(IUARTObserver* subscriber);
         void notify();
 
-        bool processEvent(Event* e);
+        bool processEvent(Event* e) override;
 
         typedef enum uartEvents{  evResponse=200,
                                     } uartEvents;

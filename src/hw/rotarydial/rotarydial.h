@@ -20,9 +20,9 @@ class RotaryDial : public IReactive, public IntManager::IIntObserver
     ~RotaryDial();
     
     void initHW();
-    bool processEvent(Event* e);
+    bool processEvent(Event* e) override;
     void startBehaviour();
-    void onInterrupt(u32_t pin);
+    void onInterrupt(u32_t pin) override;
     void subscribe(IRotaryObserver* subscriber);
     void unsubscribe(IRotaryObserver* subscriber);
     void notify();

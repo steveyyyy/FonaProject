@@ -17,7 +17,7 @@ public:
     void setLed(LED* led);
     void setDelayOn(int delay);
     void setDelayOff(int delay);
-    bool processEvent(Event* e);
+    bool processEvent(Event* e) override;
     void startBehaviour();
 
 private:

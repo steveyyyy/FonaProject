@@ -33,9 +33,9 @@ public:
     Button(GPI* pin);
     ~Button();
     void initHW();
-    bool processEvent(Event* e);
+    bool processEvent(Event* e) override;
     void startBehaviour();
-    void onInterrupt(u32_t pin);
+    void onInterrupt(u32_t pin) override;
     void subscribe(IButtonObserver* subscriber);
     void unsubscribe(IButtonObserver* subscriber);
     void notify();

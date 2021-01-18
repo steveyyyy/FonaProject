@@ -43,11 +43,11 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         ~Dial();
         string getNumber();
         void deleteNumber();
-        void onButton(int id, bool pressed);
-        void onDigit(int digit);
-        bool processEvent(Event* event);
+        void onButton(int id, bool pressed) override;
+        void onDigit(int digit) override;
+        bool processEvent(Event* event) override;
         void startBehaviour();
-        void onResponse(char * text);
+        void onResponse(char * text) override;
 
     private:
         Button* switchhook;
