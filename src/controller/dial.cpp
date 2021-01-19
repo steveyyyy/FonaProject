@@ -85,6 +85,7 @@ void Dial::onButton(int id, bool pressed){
 
 void Dial::onDigit(int digit){
     if(listenOnDigits){
+        LOG_INF("Digit: %i",digit);
         number += std::to_string(digit);
     }
     if(state==ST_DIALING){
@@ -258,7 +259,7 @@ bool Dial::processEvent(Event* e){
                 listenOnDigits=false;
                 LOG_INF("ST_DIAL");
                 fona->send("ATD"+number+"i;");
-                LOG_INF("%s", number.c_str());
+                LOG_INF("Number: %s", number.c_str());
                 ledRed->off();
                 ledGreen->on();
                 break;
