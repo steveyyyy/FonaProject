@@ -49,4 +49,34 @@ void Ringer::ringTimerTimeout(struct k_timer* ringTimer){
     k_timer_stop(thisRinger->oscillator);
     thisRinger->pinState=false;
     thisRinger->pin.off();
+    thisRinger->notify();
+}
+
+void Ringer::subscribe(IRingerObserver* subscriber)
+{
+    vector<IRingerObserver*>::iterator it;
+    it = find(subscribers.begin(), subscribers.end(),subscriber);
+    if (it == subscribers.end())
+    {
+        subscribers.push_back(subscriber);
+    }
+}
+
+void Ringer::unsubscribe(IRingerObserver* subscriber)
+{
+    vector<IRingerObserver*>::iterator it;
+    it = find(subscribers.begin(), subscribers.end(),subscriber);
+    if (it != subscribers.end())
+    {
+        subscribers.erase(it);
+    }
+}
+
+void Ringer::notify()
+{
+    vector<IRingerObserver*>::iterator it;
+    for (it=subscribers.begin(); it!=subscribers.end();++it)
+    {
+        (*it)->onRingOver();
+    }
 }
