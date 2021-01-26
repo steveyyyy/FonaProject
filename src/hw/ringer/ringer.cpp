@@ -2,7 +2,7 @@
 
 Ringer::Ringer(int p1, const char *port, int hertz, int ringTime) : pin(p1, port){
     this->hertz= (1000/hertz)/2;
-    if((ringTime>=4)&&(ringTime<0)){
+    if((ringTime<=4)&&(ringTime>0)){
         this->ringTime=(1000*ringTime);
     }
     else{
