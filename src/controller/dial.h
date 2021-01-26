@@ -9,6 +9,7 @@
 #include "../hw/led/led.h"
 #include "../hw/fona/fona.h"
 #include "../hw/display/display.h"
+#include "../hw/ringer/ringer.h"
 
 class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Button::IButtonObserver, public Fona::IFonaObserver
 {
@@ -39,7 +40,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                     evRing,
                                     evRingStop
                                  } dialerEvents;
-        Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona);
+        Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona, Ringer* ring);
         ~Dial();
         string getNumber();
         void deleteNumber();
@@ -54,6 +55,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         LED* ledGreen;
         LED* ledRed;
         Fona* fona;
+        Ringer* ring;
         string number;
         bool listenOnDigits;
         DIALERSTATE state;

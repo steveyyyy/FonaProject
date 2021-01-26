@@ -8,6 +8,7 @@
 #include "../controller/dial.h"
 #include "../uart/uart.h"
 #include "../hw/fona/fona.h"
+#include "../hw/ringer/ringer.h"
 
 class Factory
 {
@@ -30,6 +31,8 @@ public:
 
     static UART* uart(){return &_uart;}
     static Fona* fona(){return &_fona;}
+
+    static Ringer* ringer(){return &_ringer;}
 
     static XF* xf(){return XF::getInstance();}
     static IntManager* im(){return IntManager::getInstance();}
@@ -54,6 +57,8 @@ private:
     static UART _uart;
 
     static Fona _fona;
+
+    static Ringer _ringer;
 };
 
 #endif

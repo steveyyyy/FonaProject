@@ -12,7 +12,7 @@ void Dial::onTimeout(struct k_timer* t){
     XF::getInstance()->pushEvent(nf);
 }
 
-Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona){
+Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona, Ringer* ring){
 
     this->ledGreen=ledGreen;
     this->ledRed=ledRed;
@@ -20,6 +20,8 @@ Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona){
     this->switchhook=switchhook;
 
     this->fona=fona;
+
+    this->ring=ring;
 
     listenOnDigits=false;
     state=ST_INIT;
