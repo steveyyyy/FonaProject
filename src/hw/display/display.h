@@ -7,7 +7,7 @@
 class Display : public UART::IUARTObserver
 {
 public:
-    Display(UART* uart, u8_t command, u8_t specialCommand);
+    Display(UART* uart, u8_t command=0xFE, u8_t specialCommand=0x7C);
     ~Display();
     void initHW();
     void clearDispaly();

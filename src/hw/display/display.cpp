@@ -2,7 +2,7 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(display, CONFIG_DISPLAY_LOG_LEVEL);
 
-Display::Display(UART* uart, u8_t command=0xFE, u8_t specialCommand=0x7C){
+Display::Display(UART* uart, u8_t command, u8_t specialCommand){
     this->command=command;
     this->specialCommand=specialCommand;
 
