@@ -1,8 +1,13 @@
 #include "ringer.h"
 
 Ringer::Ringer(int p1, const char *port, int hertz, int ringTime) : pin(p1, port){
-    this->hertz= hertz;
-    this->ringTime=ringTime;
+    this->hertz= (1000/hertz)/2;
+    if((ringTime>=4)&&(ringTime<0)){
+        this->ringTime=(1000*ringTime);
+    }
+    else{
+        this->ringTime=2000;//sets ring to default 2 sec
+    }
 
     oscillator=(struct k_timer*) k_malloc(sizeof(struct k_timer));
     k_timer_init(oscillator, &Ringer::oscillatorToggle, NULL);
@@ -25,7 +30,7 @@ void Ringer::stop(){
 }
 void Ringer::ring(){
     k_timer_start(ringTimer,K_MSEC(2000), K_MSEC(0));
-    k_timer_start(oscillator,K_MSEC(50), K_MSEC(50));
+    k_timer_start(oscillator,K_MSEC(hertz), K_MSEC(hertz));
 }
 
 void Ringer::oscillatorToggle(struct k_timer* oscillator){

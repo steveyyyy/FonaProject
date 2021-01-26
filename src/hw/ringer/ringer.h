@@ -5,7 +5,7 @@
 class Ringer
 {
 public:
-    Ringer(int p1, const char *port, int hertz, int ringTime);
+    Ringer(int p1, const char *port, int hertz=20, int ringTime=2);
     ~Ringer();
     void initHW();
     void stop();
