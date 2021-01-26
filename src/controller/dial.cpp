@@ -62,6 +62,10 @@ Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona, Ringer* r
     this->rs.setDnd(true);
     this->rs.setId((Event::evID)evRingStop);
 
+    this->rl.setTarget(this);
+    this->rl.setDnd(true);
+    this->rl.setId((Event::evID)evRingIdle);
+
     t=(struct k_timer*) k_malloc(sizeof(struct k_timer));
     k_timer_init(t, &Dial::onTimeout, NULL);
     k_timer_user_data_set(t,&dl);
@@ -193,6 +197,20 @@ bool Dial::processEvent(Event* e){
             if (e->getId() == (Event::evID)evRingStop){
                 this->state = ST_IDLE;
             }
+            if (e->getId() == (Event::evID)evRingIdle){
+                this->state = ST_RINGIDLE;
+            }
+            break;
+        case ST_RINGIDLE:
+            if (e->getId() == (Event::evID)evHookUp){
+                this->state = ST_TAKECALL;
+            }
+            if (e->getId() == (Event::evID)evRingStop){
+                this->state = ST_IDLE;
+            }
+            if (e->getId() == (Event::evID)evRing){
+                this->state = ST_RING;
+            }
             break;
         case ST_TAKECALL:
             if (e->getId() == Event::evDefault){
@@ -227,6 +245,7 @@ bool Dial::processEvent(Event* e){
                 break;
             case ST_IDLE:
                 LOG_INF("ST_IDLE");
+                ring->stop();
                 ledGreen->off();
                 ledRed->off();
                 listenOnDigits=false;
@@ -274,9 +293,14 @@ bool Dial::processEvent(Event* e){
                 break;
             case ST_RING:
                 LOG_INF("ST_RING");
+                ring->ring();
+                break;
+            case ST_RINGIDLE:
+                LOG_INF("ST_RINGIDLE");
                 break;
             case ST_TAKECALL:
                 LOG_INF("ST_TAKECALL");
+                ring->stop();
                 fona->send("ATA");
                 break;
         }
@@ -320,6 +344,7 @@ void Dial::onResponse(char * text){
         }
         break;
     case ST_IDLE:
+    case ST_RINGIDLE:
         if(strcmp(text, "RING\r\n")==0){
             XF::getInstance()->pushEvent(&rg);
         }
@@ -341,5 +366,10 @@ void Dial::onResponse(char * text){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
+    }
+}
+void Dial::onRingOver(){
+    if(state==ST_RING){
+        XF::getInstance()->pushEvent(&rl);
     }
 }
