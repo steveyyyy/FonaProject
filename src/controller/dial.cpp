@@ -184,14 +184,9 @@ bool Dial::processEvent(Event* e){
                 this->state = ST_ENDCALL;
             }
             if (e->getId() == (Event::evID)evCallReject){
-                this->state = ST_CALLREJECTED;
-            }
-            break;
-        case ST_CALLREJECTED:
-            if (e->getId() == Event::evDefault){
                 this->state = ST_DIALING;
             }
-            break;    
+            break;   
         case ST_INCALL:
             if(e->getId()==(Event::evID)evHookDown){
                 state=ST_ENDCALL;  
@@ -298,10 +293,7 @@ bool Dial::processEvent(Event* e){
                 LOG_INF("Number: %s", number.c_str());
                 ledRed->off();
                 ledGreen->on();
-                break;
-            case ST_CALLREJECTED:
                 deleteNumber();
-                XF::getInstance()->pushEvent(&ev);
                 break;
             case ST_INCALL:
                 LOG_INF("ST_INCALL");

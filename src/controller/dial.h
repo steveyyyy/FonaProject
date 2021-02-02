@@ -24,7 +24,6 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                     ST_DIALING,
                                     ST_VALIDATEDIGIT,
                                     ST_DIAL,
-                                    ST_CALLREJECTED,
                                     ST_INCALL,
                                     ST_ENDCALL,
                                     ST_RING,
