@@ -66,9 +66,9 @@ Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona, Ringer* r
     this->rs.setDnd(true);
     this->rs.setId((Event::evID)evRingStop);
 
-    this->rl.setTarget(this);
-    this->rl.setDnd(true);
-    this->rl.setId((Event::evID)evRingIdle);
+    this->ri.setTarget(this);
+    this->ri.setDnd(true);
+    this->ri.setId((Event::evID)evRingIdle);
 
     t=(struct k_timer*) k_malloc(sizeof(struct k_timer));
     k_timer_init(t, &Dial::onTimeout, NULL);
@@ -305,9 +305,12 @@ bool Dial::processEvent(Event* e){
             case ST_RING:
                 LOG_INF("ST_RING");
                 ring->ring();
+                ri.setDelay(2000);
+                XF::getInstance()->pushEvent(&ri);
                 break;
             case ST_RINGIDLE:
                 LOG_INF("ST_RINGIDLE");
+                ring->stop();
                 break;
             case ST_TAKECALL:
                 LOG_INF("ST_TAKECALL");
@@ -380,10 +383,5 @@ void Dial::onResponse(char * text){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
-    }
-}
-void Dial::onRingOver(){
-    if(state==ST_RING){
-        XF::getInstance()->pushEvent(&rl);
     }
 }

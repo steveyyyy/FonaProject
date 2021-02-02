@@ -11,7 +11,7 @@
 #include "../hw/display/display.h"
 #include "../hw/ringer/ringer.h"
 
-class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Button::IButtonObserver, public Fona::IFonaObserver, public Ringer::IRingerObserver
+class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Button::IButtonObserver, public Fona::IFonaObserver
 {
     public:
         typedef enum DIALERSTATE{   ST_INIT,
@@ -50,7 +50,6 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         void onButton(int id, bool pressed) override;
         void onDigit(int digit) override;
         bool processEvent(Event* event) override;
-        void onRingOver() override;
         void startBehaviour();
         void onResponse(char * text) override;
 
@@ -73,7 +72,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         Event cr; //Call rejected event
         Event rg; //Ring event
         Event rs; //Stop Ring event
-        Event rl; //Ring Idle event
+        Event ri; //Ring Idle event
         string emergencyNumbers[6][2]={ {"112","Notruf"},
                                         {"117","Polizei"},
                                         {"118","Feuerwehr"},

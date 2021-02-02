@@ -66,8 +66,7 @@ void Factory::init() {
     
     switchhook()->initHW();
     rotary()->initHW();
-    //error happens here
-    //uart()->subscribe(fona()); 
+    
     //init UART
     uart()->initHW();
     //enable UART interrupt
@@ -78,7 +77,7 @@ void Factory::build() {
     switchhook()->subscribe(dialer());
     rotary()->subscribe(dialer());
     fona()->subscribe(dialer());
-    ringer()->subscribe(dialer());
+
 }
 
 void Factory::start() {
