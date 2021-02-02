@@ -54,6 +54,10 @@ Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona, Ringer* r
     this->dl.setDnd(true);
     this->dl.setId((Event::evID)evDial);
 
+    this->cr.setTarget(this);
+    this->cr.setDnd(true);
+    this->cr.setId((Event::evID)evCallReject);
+
     this->rg.setTarget(this);
     this->rg.setDnd(true);
     this->rg.setId((Event::evID)evRing);
@@ -176,6 +180,17 @@ bool Dial::processEvent(Event* e){
             if (e->getId() == Event::evDefault){
                 this->state = ST_INCALL;
             }
+            if (e->getId() == (Event::evID)evHookDown){
+                this->state = ST_ENDCALL;
+            }
+            if (e->getId() == (Event::evID)evCallReject){
+                this->state = ST_CALLREJECTED;
+            }
+            break;
+        case ST_CALLREJECTED:
+            if (e->getId() == Event::evDefault){
+                this->state = ST_DIALING;
+            }
             break;    
         case ST_INCALL:
             if(e->getId()==(Event::evID)evHookDown){
@@ -284,6 +299,10 @@ bool Dial::processEvent(Event* e){
                 ledRed->off();
                 ledGreen->on();
                 break;
+            case ST_CALLREJECTED:
+                deleteNumber();
+                XF::getInstance()->pushEvent(&ev);
+                break;
             case ST_INCALL:
                 LOG_INF("ST_INCALL");
                 break;
@@ -354,7 +373,10 @@ void Dial::onResponse(char * text){
             XF::getInstance()->pushEvent(&rs);
         }
         break;
-    case ST_DIAL:    
+    case ST_DIAL:
+        if(strncmp(text, "VOICE CALL: END", 15)==0){
+            XF::getInstance()->pushEvent(&cr);
+        }
     case ST_TAKECALL:
         if(strcmp(text, "VOICE CALL: BEGIN\r\n")==0){
             XF::getInstance()->pushEvent(&ev);

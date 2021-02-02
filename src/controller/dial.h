@@ -24,6 +24,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                     ST_DIALING,
                                     ST_VALIDATEDIGIT,
                                     ST_DIAL,
+                                    ST_CALLREJECTED,
                                     ST_INCALL,
                                     ST_ENDCALL,
                                     ST_RING,
@@ -38,6 +39,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
                                     evHookDown,
                                     evOnDigit,
                                     evDial,
+                                    evCallReject,
                                     evRing,
                                     evRingStop,
                                     evRingIdle
@@ -69,6 +71,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         Event hd; //hookdown event
         Event od; //OnDigit event
         Event dl; //Dial event
+        Event cr; //Call rejected event
         Event rg; //Ring event
         Event rs; //Stop Ring event
         Event rl; //Ring Idle event
