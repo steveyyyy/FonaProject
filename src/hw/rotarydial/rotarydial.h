@@ -65,7 +65,8 @@ class RotaryDial : public IReactive, public IntManager::IIntObserver
     ROTARYSTATE state;
     int digit;
 
-    int delay;
+    int pulseDelay;
+    int windDelay;
 };
 
 #endif

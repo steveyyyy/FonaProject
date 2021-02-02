@@ -9,7 +9,8 @@ RotaryDial::RotaryDial(GPI* active, GPI* number){
     this->number=number;
     this->active=active;
 
-    delay=1;
+    pulseDelay=3;
+    windDelay=7;
 
     this->state = ST_INIT;
 
@@ -19,7 +20,7 @@ RotaryDial::RotaryDial(GPI* active, GPI* number){
 
     this->tm.setTarget(this);
     this->tm.setDnd(true);
-    this->tm.setDelay(delay);
+    this->tm.setDelay(windDelay);
     this->tm.setId(Event::evTimeout);
 
     this->wd.setTarget(this);
@@ -149,7 +150,7 @@ bool RotaryDial::processEvent(Event* e) {
         case ST_DEBWINDUP:
             LOG_INF("ST_DEBWINDUP");
             digit=0;
-            this->tm.setDelay(delay);
+            this->tm.setDelay(windDelay);
             XF::getInstance()->pushEvent(&tm);
             break;
         case ST_COUNTING:
@@ -157,7 +158,7 @@ bool RotaryDial::processEvent(Event* e) {
             break;
         case ST_DEBWINDDOWN:
             LOG_INF("ST_DEBWINDDOWN");
-            this->tm.setDelay(delay);
+            this->tm.setDelay(windDelay);
             XF::getInstance()->pushEvent(&tm);
             break;
         case ST_DECIDENOTIFY:
@@ -180,7 +181,7 @@ bool RotaryDial::processEvent(Event* e) {
             break;
         case ST_DEBPULSEDOWN:
             LOG_INF("ST_DEBPULSEDOWN");
-            this->tm.setDelay(delay);
+            this->tm.setDelay(pulseDelay);
             XF::getInstance()->pushEvent(&tm);
             break;
         case ST_WAITPULSEUP:
@@ -188,7 +189,7 @@ bool RotaryDial::processEvent(Event* e) {
             break;
         case ST_DEBPULSEUP:
             LOG_INF("ST_DEBPULSEUP");
-            this->tm.setDelay(delay);
+            this->tm.setDelay(pulseDelay);
             XF::getInstance()->pushEvent(&tm);
             break;
         case ST_COUNT:
