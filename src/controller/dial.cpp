@@ -12,10 +12,7 @@ void Dial::onTimeout(struct k_timer* t){
     XF::getInstance()->pushEvent(nf);
 }
 
-Dial::Dial(Button* switchhook, LED* ledGreen, LED* ledRed, Fona* fona, Ringer* ring){
-
-    this->ledGreen=ledGreen;
-    this->ledRed=ledRed;
+Dial::Dial(Button* switchhook, Fona* fona, Ringer* ring){
 
     this->switchhook=switchhook;
 
@@ -256,13 +253,10 @@ bool Dial::processEvent(Event* e){
             case ST_IDLE:
                 LOG_INF("ST_IDLE");
                 ring->stop();
-                ledGreen->off();
-                ledRed->off();
                 listenOnDigits=false;
                 deleteNumber();
                 break;
             case ST_DIALING:
-                ledRed->on();
                 LOG_INF("ST_DIALING");
                 listenOnDigits=true;
                 if(number.length()>=3){
@@ -291,8 +285,6 @@ bool Dial::processEvent(Event* e){
                 LOG_INF("ST_DIAL");
                 fona->send("ATD"+number+"i;");
                 LOG_INF("Number: %s", number.c_str());
-                ledRed->off();
-                ledGreen->on();
                 deleteNumber();
                 break;
             case ST_INCALL:

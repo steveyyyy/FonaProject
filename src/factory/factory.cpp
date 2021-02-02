@@ -4,9 +4,6 @@ GPI Factory::_pinWindUp(5,"GPIOB"); //Greeen Cable on D11
 GPI Factory::_pinPulse(4,"GPIOB"); //Brown Cable on D12
 RotaryDial Factory::_rotaryDial(&_pinWindUp,&_pinPulse);
 
-LED Factory::_ledGreen(0,"GPIOA");
-LED Factory::_ledRed(1,"GPIOA");
-
 GPI Factory::_pinSwitchhook(11,"GPIOA");
 Button Factory::_switchhook(&_pinSwitchhook);
 
@@ -15,7 +12,7 @@ Fona Factory::_fona(&_uart);
 
 Ringer Factory::_ringer(7,"GPIOA");
 
-Dial Factory::_dialer(&_switchhook,&_ledGreen,&_ledRed,&_fona,&_ringer);
+Dial Factory::_dialer(&_switchhook,&_fona,&_ringer);
 
 
 Factory::Factory(/* args */) {
@@ -58,12 +55,7 @@ void Factory::init() {
     ntrpt.pp.dev = pSwitchhook()->getDriver();
     im()->enableInt(ntrpt);
 
-    
-    
-    ledGreen()->initHW();
-    ledRed()->initHW();
-    ringer()->initHW();
-    
+    ringer()->initHW();  
     switchhook()->initHW();
     rotary()->initHW();
     

@@ -3,7 +3,6 @@
 
 #include "../xf/xf.h"
 #include "../hw/rotarydial/rotarydial.h"
-#include "../hw/led/led.h"
 #include "../hw/button/button.h"
 #include "../controller/dial.h"
 #include "../uart/uart.h"
@@ -20,9 +19,6 @@ public:
     static GPI* pWindUp() {return &_pinWindUp;}
     static GPI* pPulse() {return &_pinPulse;}
     static RotaryDial* rotary(){return &_rotaryDial;}
-
-    static LED* ledGreen() {return &_ledGreen;}
-    static LED* ledRed() {return &_ledRed;}
 
     static GPI* pSwitchhook(){return &_pinSwitchhook;}
 
@@ -45,9 +41,6 @@ private:
     static RotaryDial _rotaryDial;
     static GPI _pinWindUp;
     static GPI _pinPulse;
-
-    static LED _ledGreen;
-    static LED _ledRed;
 
     static GPI _pinSwitchhook;
     static Button _switchhook;
