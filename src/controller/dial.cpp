@@ -354,7 +354,6 @@ void Dial::onResponse(char * text){
         if(strcmp(text, "RING\r\n")==0){
             XF::getInstance()->pushEvent(&rg);
         }
-        break;
     case ST_RING:
         if(strncmp(text, "MISSED_CALL:", 12)==0){
             XF::getInstance()->pushEvent(&rs);
