@@ -1,7 +1,8 @@
 #include "ringer.h"
 
-Ringer::Ringer(int p1, const char *port, int hertz) : pin(p1, port){
-    this->hertz= (1000/hertz)/2;
+Ringer::Ringer(int p1, const char *port, float hertz, float prozent) : pin(p1, port){
+    this->pulseUp= (1000/hertz)*prozent;
+    this->pulseDown= (1000/hertz)*(1-prozent);
     oscillator=(struct k_timer*) k_malloc(sizeof(struct k_timer));
     k_timer_init(oscillator, &Ringer::oscillatorToggle, NULL);
 }
@@ -21,7 +22,7 @@ void Ringer::stop(){
     pin.off();
 }
 void Ringer::ring(){
-    k_timer_start(oscillator,K_MSEC(hertz), K_MSEC(hertz));
+    k_timer_start(oscillator,K_MSEC(pulseUp), K_MSEC(pulseUp));
 }
 
 void Ringer::oscillatorToggle(struct k_timer* oscillator){
@@ -29,8 +30,10 @@ void Ringer::oscillatorToggle(struct k_timer* oscillator){
     if(thisRinger->pinState){
         thisRinger->pinState=false;
         thisRinger->pin.off();
+        k_timer_start(oscillator,K_MSEC(thisRinger->pulseDown), K_MSEC(thisRinger->pulseDown));
     }else{
         thisRinger->pinState=true;
         thisRinger->pin.on();
+        k_timer_start(oscillator,K_MSEC(thisRinger->pulseUp), K_MSEC(thisRinger->pulseUp));
     }
 }

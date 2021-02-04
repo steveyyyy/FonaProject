@@ -6,14 +6,15 @@
 class Ringer
 {
 public:
-    Ringer(int p1, const char *port, int hertz=20);
+    Ringer(int p1, const char *port, float hertz=16, float prozent=0.3333);
     ~Ringer();
     void initHW();
     void stop();
     void ring();
 private:
     GPO pin;
-    int hertz;
+    float pulseUp;
+    float pulseDown;
     bool pinState;
 
     struct k_timer* oscillator;
