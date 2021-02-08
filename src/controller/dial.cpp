@@ -255,6 +255,9 @@ bool Dial::processEvent(Event* e){
                 ring->stop();
                 listenOnDigits=false;
                 deleteNumber();
+                if(switchhook->getCurrentState()){
+                    XF::getInstance()->pushEvent(&hu);
+                }
                 break;
             case ST_DIALING:
                 LOG_INF("ST_DIALING");

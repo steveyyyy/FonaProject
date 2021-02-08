@@ -217,3 +217,19 @@ int Button::getId()
 {
     return this->pin->getUId();
 }
+
+bool Button::getCurrentState(){
+    switch (this->state)
+        {
+            case ST_INIT:
+            case ST_DEBOUNCE:
+            case ST_DECIDE:
+            break;
+            case ST_PRESSED:
+                return false;
+            break;
+            case ST_RELEASED:
+                return true;
+            break;
+        }
+}

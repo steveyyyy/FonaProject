@@ -40,6 +40,7 @@ public:
     void unsubscribe(IButtonObserver* subscriber);
     void notify();
     int getId();
+    bool getCurrentState();
 
 private:
     GPI* pin;                                /**< General Purpose Input pin */
