@@ -96,11 +96,16 @@ void Dial::onDigit(int digit){
         number += std::to_string(digit);
     }
     if(state==ST_DIALING){
+        if(digit==0){
+            digit=10;
+        }
+        fona->send("AT+CPTONE="+std::to_string(digit));
         XF::getInstance()->pushEvent(&od);
     }
 }
 
 void Dial::startBehaviour(){
+    this->in.setDelay(2000);
     XF::getInstance()->pushEvent(&in);
 }
 
@@ -254,6 +259,7 @@ bool Dial::processEvent(Event* e){
                 LOG_INF("ST_IDLE");
                 ring->stop();
                 listenOnDigits=false;
+                fona->send("AT+CPTONE=0");
                 deleteNumber();
                 if(switchhook->getCurrentState()){
                     XF::getInstance()->pushEvent(&hu);
@@ -261,6 +267,12 @@ bool Dial::processEvent(Event* e){
                 break;
             case ST_DIALING:
                 LOG_INF("ST_DIALING");
+                if(number.empty()){
+                    fona->send("AT+CPTONE=26");
+                }
+                else{
+                    fona->send("AT+CPTONE=0");
+                }
                 listenOnDigits=true;
                 if(number.length()>=3){
                     LOG_INF("Timer started");
@@ -323,8 +335,12 @@ void Dial::onResponse(char * text){
     case ST_INIT:
     case ST_SETUP:
     case ST_LOCKED:
-    case ST_DIALING:
     case ST_VALIDATEDIGIT:
+        break;
+    case ST_DIALING:
+        if(strcmp(text, "RING\r\n")==0){
+            fona->send("AT+CHUP");
+        }
         break;
     case ST_WAITOK:
         if(strcmp(text, "OK\r\n")==0){
