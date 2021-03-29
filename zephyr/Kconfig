@@ -2,7 +2,7 @@ menu "FONA"
 config DIALER_LOG_LEVEL
 	int "Dialer Log Level"
 	default 0
-config GPIO_LOG_LEVEL
+config GPIO_LOG_LEVE
 	int "GPIO Log Level"
 	default 0
 config FLASHING_LIGHT_LOG_LEVEL
