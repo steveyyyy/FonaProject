@@ -105,7 +105,7 @@ void Dial::onDigit(int digit){
 }
 
 void Dial::startBehaviour(){
-    this->in.setDelay(2000);
+    this->in.setDelay(10000);
     XF::getInstance()->pushEvent(&in);
 }
 
