@@ -257,6 +257,7 @@ bool Dial::processEvent(Event* e){
                 break;
             case ST_IDLE:
                 LOG_INF("ST_IDLE");
+                fona->send("AT+CFBDMTCALL=0");
                 ring->stop();
                 listenOnDigits=false;
                 fona->send("AT+CPTONE=0");
@@ -267,6 +268,7 @@ bool Dial::processEvent(Event* e){
                 break;
             case ST_DIALING:
                 LOG_INF("ST_DIALING");
+                fona->send("AT+CFBDMTCALL=1");
                 if(number.empty()){
                     fona->send("AT+CPTONE=26");
                 }
