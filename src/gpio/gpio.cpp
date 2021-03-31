@@ -2,7 +2,7 @@
 #include "gpio.h"
 #include <string.h>
 #include <logging/log.h>
-LOG_MODULE_REGISTER(gpio, CONFIG_GPIO_LOG_LEVE);
+LOG_MODULE_REGISTER(gpio, CONFIG_GPI_GPO_LOG_LEVEL);
 
 u8_t GPIO::uid = 0; /**< Initalize unique ID with 0*/
 
