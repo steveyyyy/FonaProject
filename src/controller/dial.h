@@ -52,6 +52,7 @@ class Dial :  public IReactive, public RotaryDial::IRotaryObserver, public Butto
         void onResponse(char * text) override;
 
     private:
+        void playDialingTone();
         Button* switchhook;
         Fona* fona;
         Ringer* ring;

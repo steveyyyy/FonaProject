@@ -257,7 +257,6 @@ bool Dial::processEvent(Event* e){
                 break;
             case ST_IDLE:
                 LOG_INF("ST_IDLE");
-                fona->send("AT+CFBDMTCALL=0");
                 ring->stop();
                 listenOnDigits=false;
                 fona->send("AT+CPTONE=0");
@@ -268,13 +267,7 @@ bool Dial::processEvent(Event* e){
                 break;
             case ST_DIALING:
                 LOG_INF("ST_DIALING");
-                fona->send("AT+CFBDMTCALL=1");
-                if(number.empty()){
-                    fona->send("AT+CPTONE=26");
-                }
-                else{
-                    fona->send("AT+CPTONE=0");
-                }
+                playDialingTone();
                 listenOnDigits=true;
                 if(number.length()>=3){
                     LOG_INF("Timer started");
@@ -301,7 +294,7 @@ bool Dial::processEvent(Event* e){
                 listenOnDigits=false;
                 LOG_INF("ST_DIAL");
                 fona->send("ATD"+number+"i;");
-                LOG_INF("Number: %s", number.c_str());
+                LOG_INF("Number: %s", log_strdup(number.c_str()));
                 deleteNumber();
                 break;
             case ST_INCALL:
@@ -331,7 +324,7 @@ bool Dial::processEvent(Event* e){
     return processed;
 }
 void Dial::onResponse(char * text){
-    LOG_INF("DATA: %s", text);
+    LOG_INF("Data: %s", log_strdup(text));
     switch (state)
     {
     case ST_INIT:
@@ -342,6 +335,9 @@ void Dial::onResponse(char * text){
     case ST_DIALING:
         if(strcmp(text, "RING\r\n")==0){
             fona->send("AT+CHUP");
+        }
+        if(strncmp(text, "MISSED_CALL:", 12)==0){
+            playDialingTone();
         }
         break;
     case ST_WAITOK:
@@ -395,5 +391,13 @@ void Dial::onResponse(char * text){
             XF::getInstance()->pushEvent(&ev);
         }
         break;
+    }
+}
+void Dial::playDialingTone(){
+    if(number.empty()){
+        fona->send("AT+CPTONE=26");
+    }
+    else{
+        fona->send("AT+CPTONE=0");
     }
 }
