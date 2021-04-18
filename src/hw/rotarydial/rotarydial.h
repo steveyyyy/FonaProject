@@ -14,9 +14,9 @@ class RotaryDial : public IReactive, public IntManager::IIntObserver
     class IRotaryObserver
     {
         public:
-        virtual void onDigit(int digit) = 0;
+        virtual void onPulses(vector<int> pulses) = 0;
     };
-    RotaryDial(GPI* active, GPI* number);
+    RotaryDial(GPI* wind, GPI* pulse);
     ~RotaryDial();
     
     void initHW();
@@ -28,45 +28,41 @@ class RotaryDial : public IReactive, public IntManager::IIntObserver
     void notify();
     int getActiveId();
     int getNumberId();
-    //int getDigit();
     
-    typedef enum rotaryEvents{  evWindUp=100,
-                                evWindDown,
-                                evPulseDown,
+    typedef enum rotaryEvents{  evPulseDown=100,
                                 evPulseUp,
                                 evNotify
                              } rotaryEvents;
 
     typedef enum ROTARYSTATE {  ST_INIT,
-                                ST_WAITDIAL,
-                                ST_DEBWINDUP,
-                                ST_COUNTING,   
-                                ST_DEBWINDDOWN,
-                                ST_DECIDENOTIFY,
+                                ST_IDLE,
                                 ST_NOTIFY,
-                                ST_DEBPULSEDOWN,
-                                ST_WAITPULSEUP,
-                                ST_DEBPULSEUP,
-                                ST_COUNT,
+                                ST_PULSEDOWN,
+                                ST_PULSEUP,
                              } ROTARYSTATE;
 
     private:
-    GPI* active;
-    GPI* number;
+
+    GPI* wind;
+    GPI* pulse;
     Event ev; //default
-    Event wu;//windup event
-    Event wd; //winddow event
     Event pu; //pulseUp
     Event pd; //pulseDown
     Event in; //initial event
     Event tm;//timeoutEvent
-    Event nf; //notify
+
     vector<IRotaryObserver*> subscribers;
     ROTARYSTATE state;
-    int digit;
-
+    vector<int> pulses;
+    
     int pulseDelay;
     int windDelay;
+    int pulsesOver;
+
+    s64_t time_stamp;
+
+    struct k_timer* t;
+    static void onTimeout(struct k_timer* t);
 };
 
 #endif

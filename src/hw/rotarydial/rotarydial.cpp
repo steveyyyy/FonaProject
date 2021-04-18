@@ -5,12 +5,13 @@ LOG_MODULE_REGISTER(rotarydial, CONFIG_ROTARYDIAL_LOG_LEVEL);
 
 
 
-RotaryDial::RotaryDial(GPI* active, GPI* number){
-    this->number=number;
-    this->active=active;
+RotaryDial::RotaryDial(GPI* wind, GPI* pulse){
+    this->wind=wind;
+    this->pulse=pulse;
 
     pulseDelay=3;
     windDelay=7;
+    pulsesOver=70;
 
     this->state = ST_INIT;
 
@@ -20,16 +21,8 @@ RotaryDial::RotaryDial(GPI* active, GPI* number){
 
     this->tm.setTarget(this);
     this->tm.setDnd(true);
-    this->tm.setDelay(windDelay);
+    // this->tm.setDelay(windDelay);
     this->tm.setId(Event::evTimeout);
-
-    this->wd.setTarget(this);
-    this->wd.setDnd(true);
-    this->wd.setId((Event::evID)evWindDown);
-
-    this->wu.setTarget(this);
-    this->wu.setDnd(true);
-    this->wu.setId((Event::evID)evWindUp);
 
     this->pu.setTarget(this);
     this->pu.setDnd(true);
@@ -39,13 +32,13 @@ RotaryDial::RotaryDial(GPI* active, GPI* number){
     this->pd.setDnd(true);
     this->pd.setId((Event::evID)evPulseDown);
 
-    this->nf.setTarget(this);
-    this->nf.setDnd(true);
-    this->nf.setId((Event::evID)evNotify);
-
     this->in.setTarget(this);
     this->in.setDnd(true);
     this->in.setId(Event::evInitial);
+
+    t=(struct k_timer*) k_malloc(sizeof(struct k_timer));
+    k_timer_init(t, &RotaryDial::onTimeout, NULL);
+    k_timer_user_data_set(t,&tm);
 }
 RotaryDial::~RotaryDial() {}
 
@@ -53,15 +46,15 @@ void RotaryDial::initHW() {
     //interruptmanager of number pin
     IntManager::Subscription subNumber;
     subNumber.subscriber=this;
-    subNumber.pp.pin=number->getPin();
-    subNumber.pp.dev=number->getDriver();
+    subNumber.pp.pin=wind->getPin();
+    subNumber.pp.dev=wind->getDriver();
     IntManager::getInstance()->subscribe(subNumber);
 
     //interruptmanager of active pin
     IntManager::Subscription subActive;
     subActive.subscriber=this;
-    subActive.pp.pin=active->getPin();
-    subActive.pp.dev=active->getDriver();
+    subActive.pp.pin=pulse->getPin();
+    subActive.pp.dev=pulse->getDriver();
     IntManager::getInstance()->subscribe(subActive);
 }
 
@@ -73,67 +66,31 @@ bool RotaryDial::processEvent(Event* e) {
     {
     case ST_INIT:
         if(e->getId()==Event::evInitial){
-            state=ST_WAITDIAL;
+            state=ST_IDLE;
         }
         break;
-    case ST_WAITDIAL:
-        if(e->getId()==(Event::evID)evWindUp){
-           state=ST_DEBWINDUP;     
-        }
-        break;
-    case ST_DEBWINDUP:
-        if(e->getId()==Event::evTimeout){
-            state=ST_COUNTING;
-        }
-        break;
-    case ST_COUNTING:
-        if(e->getId()==(Event::evID)evWindDown){
-            state=ST_DEBWINDDOWN;
-        }
+    case ST_IDLE:
         if(e->getId()==(Event::evID)evPulseDown){
-            state=ST_DEBPULSEDOWN;
+           state=ST_PULSEDOWN;     
         }
         break;
-    case ST_DEBWINDDOWN:
-        if(e->getId()==Event::evTimeout){
-            state=ST_DECIDENOTIFY;
+    case ST_PULSEDOWN:
+        if(e->getId()==(Event::evID)evPulseUp){
+            state=ST_PULSEUP;
         }
         break;
-    case ST_DECIDENOTIFY:
-        if(e->getId()==Event::evDefault){
-            state=ST_WAITDIAL;
+    case ST_PULSEUP:
+        if(e->getId()==(Event::evID)evPulseDown){
+           state=ST_PULSEDOWN;     
         }
-        if(e->getId()==(Event::evID)evNotify){
-            state=ST_NOTIFY;
+        else if(e->getId()==Event::evTimeout){
+           state=ST_NOTIFY;     
         }
         break;
     case ST_NOTIFY:
         if(e->getId()==Event::evDefault){
-            state=ST_WAITDIAL;
+            state=ST_IDLE;
         }
-        break;
-    case ST_DEBPULSEDOWN:
-        if(e->getId()==Event::evTimeout){
-            state=ST_WAITPULSEUP;
-        }
-        break;
-    case ST_WAITPULSEUP:
-        if(e->getId()==(Event::evID)evPulseUp){
-            state=ST_DEBPULSEUP;
-        }
-        break;
-    case ST_DEBPULSEUP:
-        if(e->getId()==Event::evTimeout){
-            state=ST_COUNT;
-        }
-        break;
-    case ST_COUNT:
-        if(e->getId()==Event::evDefault){
-            state=ST_COUNTING;
-        }
-        if(e->getId()==(Event::evID)evWindDown){
-            state=ST_DEBWINDDOWN;
-        } 
         break;
     }
 
@@ -142,78 +99,35 @@ bool RotaryDial::processEvent(Event* e) {
         switch (state)
         {
         case ST_INIT:
-            LOG_INF("ST_INIT");
             break;
-        case ST_WAITDIAL:
-            LOG_INF("ST_WAITDIAL");
-            break;  
-        case ST_DEBWINDUP:
-            LOG_INF("ST_DEBWINDUP");
-            digit=0;
-            this->tm.setDelay(windDelay);
-            XF::getInstance()->pushEvent(&tm);
+        case ST_IDLE:
             break;
-        case ST_COUNTING:
-            LOG_INF("ST_COUNTING");
+        case ST_PULSEDOWN:
+            time_stamp = k_uptime_get();
+            k_timer_stop(t);
             break;
-        case ST_DEBWINDDOWN:
-            LOG_INF("ST_DEBWINDDOWN");
-            this->tm.setDelay(windDelay);
-            XF::getInstance()->pushEvent(&tm);
-            break;
-        case ST_DECIDENOTIFY:
-            LOG_INF("ST_DECIDENOTIFY");
-            if(digit==0){
-                XF::getInstance()->pushEvent(&ev);
-            }
-            else{
-                XF::getInstance()->pushEvent(&nf);
-            }
+        case ST_PULSEUP:
+            pulses.push_back(k_uptime_delta(&time_stamp));
+            k_timer_start(t,K_MSEC(pulsesOver), K_MSEC(0));
             break;
         case ST_NOTIFY:
-            LOG_INF("ST_NOTIFY");
-            if(digit>=10){
-                digit=0;
-            }
-            LOG_INF("Digit: %d",digit);
-            XF::getInstance()->pushEvent(&ev);
             notify();
-            break;
-        case ST_DEBPULSEDOWN:
-            LOG_INF("ST_DEBPULSEDOWN");
-            this->tm.setDelay(pulseDelay);
-            XF::getInstance()->pushEvent(&tm);
-            break;
-        case ST_WAITPULSEUP:
-            LOG_INF("ST_WAITPULSEUP");
-            break;
-        case ST_DEBPULSEUP:
-            LOG_INF("ST_DEBPULSEUP");
-            this->tm.setDelay(pulseDelay);
-            XF::getInstance()->pushEvent(&tm);
-            break;
-        case ST_COUNT:
-            LOG_INF("ST_COUNT");
-            digit++;
-            LOG_INF("%d",digit);
-            XF::getInstance()->pushEvent(&ev);
             break;
         }
     }   
     return processed;
 }
 
+void RotaryDial::onTimeout(struct k_timer* t){
+    LOG_INF("Timer timeout");
+    Event* tm;
+    tm = static_cast<Event*>(k_timer_user_data_get(t));
+    XF::getInstance()->pushEvent(tm);
+}
+
 void RotaryDial::onInterrupt(u32_t pin) {
-    if(pin==(u32_t)active->getPin()){
-        if(active->read()==GPIO::PIN_ON){      
-            XF::getInstance()->pushEvent(&wu);
-        }
-        else{     
-            XF::getInstance()->pushEvent(&wd);
-        }
-    }
-    else if(pin==(u32_t)number->getPin()){
-        if(number->read()==GPIO::PIN_ON){      
+if(pin==(u32_t)pulse->getPin()){
+        if(pulse->read()==GPIO::PIN_ON){      
             XF::getInstance()->pushEvent(&pu);
         }
         else{
@@ -244,16 +158,16 @@ void RotaryDial::notify() {
     vector<IRotaryObserver*>::iterator it;
     for (it=subscribers.begin(); it!=subscribers.end();++it)
     {
-        (*it)->onDigit(this->digit);
+        (*it)->onPulses(pulses);
     }
 }
 
 int RotaryDial::getActiveId(){
-    return active->getUId();
+    return wind->getUId();
 }
 
 int RotaryDial::getNumberId(){
-    return number->getUId();
+    return pulse->getUId();
 }
 
 void RotaryDial::startBehaviour()
