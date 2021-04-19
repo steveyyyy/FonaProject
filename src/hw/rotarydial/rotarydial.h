@@ -14,7 +14,7 @@ class RotaryDial : public IReactive, public IntManager::IIntObserver
     class IRotaryObserver
     {
         public:
-        virtual void onPulses(vector<int> pulses) = 0;
+        virtual void onDigit(int digit) = 0;
     };
     RotaryDial(GPI* wind, GPI* pulse);
     ~RotaryDial();
@@ -38,7 +38,9 @@ class RotaryDial : public IReactive, public IntManager::IIntObserver
                                 ST_IDLE,
                                 ST_NOTIFY,
                                 ST_PULSEDOWN,
+                                ST_DEBPULSEDOWN,
                                 ST_PULSEUP,
+                                ST_DEBPULSEUP,
                              } ROTARYSTATE;
 
     private:
@@ -49,15 +51,17 @@ class RotaryDial : public IReactive, public IntManager::IIntObserver
     Event pu; //pulseUp
     Event pd; //pulseDown
     Event in; //initial event
-    Event tm;//timeoutEvent
+    Event tm; //timeoutEvent
 
     vector<IRotaryObserver*> subscribers;
     ROTARYSTATE state;
     vector<int> pulses;
     
-    int pulseDelay;
-    int windDelay;
     int pulsesOver;
+    int pulseWidth;
+    int pulseRange;
+    int digit;
+    int delay;
 
     s64_t time_stamp;
 
