@@ -39,11 +39,11 @@ void Button::initHW()
 
     
     //subscribe to interrupts from the butoons pin
-    IntManager::Subscription sub;
-    sub.subscriber=this; //need to implement IIIntObserver!!
-    sub.pp.pin=this->pin->getPin();
-    sub.pp.dev=this->pin->getDriver();
-    IntManager::getInstance()->subscribe(sub);
+    // IntManager::Subscription sub;
+    // sub.subscriber=this; //need to implement IIIntObserver!!
+    // sub.pp.pin=this->pin->getPin();
+    // sub.pp.dev=this->pin->getDriver();
+    // IntManager::getInstance()->subscribe(sub);
 }
 
 /**
@@ -219,6 +219,7 @@ int Button::getId()
 }
 
 bool Button::getCurrentState(){
+    bool retval=false;
     switch (this->state)
         {
             case ST_INIT:
@@ -226,10 +227,13 @@ bool Button::getCurrentState(){
             case ST_DECIDE:
             break;
             case ST_PRESSED:
-                return false;
+                retval=false;
             break;
             case ST_RELEASED:
-                return true;
+                retval=true;
             break;
+            default:
+                break;
         }
+    return retval;
 }

@@ -14,6 +14,9 @@ Ringer Factory::_ringer(7,"GPIOA");
 
 Dial Factory::_dialer(&_switchhook,&_fona,&_ringer);
 
+gpio_callback Factory::_cbPortA;
+gpio_callback Factory::_cbPortB;
+
 
 Factory::Factory(/* args */) {
     
@@ -36,24 +39,24 @@ void Factory::init() {
     pPulse()->initHW();
     pSwitchhook()->initHW();
 
-    IntManager::Interrupt ntrpt;
-    //enable interrupts on pWindUp
-    ntrpt.edge = IntManager::BOTH;
-    ntrpt.pp.pin = pWindUp()->getPin();
-    ntrpt.pp.dev = pWindUp()->getDriver();
-    im()->enableInt(ntrpt);
+    // IntManager::Interrupt ntrpt;
+    // //enable interrupts on pWindUp
+    // ntrpt.edge = IntManager::BOTH;
+    // ntrpt.pp.pin = pWindUp()->getPin();
+    // ntrpt.pp.dev = pWindUp()->getDriver();
+    // im()->enableInt(ntrpt);
 
-    //enable interrupts on pPulse
-    ntrpt.edge = IntManager::BOTH;
-    ntrpt.pp.pin = pPulse()->getPin();
-    ntrpt.pp.dev = pPulse()->getDriver();
-    im()->enableInt(ntrpt);
+    // //enable interrupts on pPulse
+    // ntrpt.edge = IntManager::BOTH;
+    // ntrpt.pp.pin = pPulse()->getPin();
+    // ntrpt.pp.dev = pPulse()->getDriver();
+    // im()->enableInt(ntrpt);
 
-    //enable interrupts on pSwitchhook
-    ntrpt.edge = IntManager::BOTH;
-    ntrpt.pp.pin = pSwitchhook()->getPin();
-    ntrpt.pp.dev = pSwitchhook()->getDriver();
-    im()->enableInt(ntrpt);
+    // //enable interrupts on pSwitchhook
+    // ntrpt.edge = IntManager::BOTH;
+    // ntrpt.pp.pin = pSwitchhook()->getPin();
+    // ntrpt.pp.dev = pSwitchhook()->getDriver();
+    // im()->enableInt(ntrpt);
 
     ringer()->initHW();  
     switchhook()->initHW();
@@ -63,6 +66,32 @@ void Factory::init() {
     uart()->initHW();
     //enable UART interrupt
     uart()->enableRXInterrupt();
+
+    if(gpio_pin_interrupt_configure(pSwitchhook()->getDriver(),pSwitchhook()->getPin(),GPIO_INT_EDGE_BOTH) != 0){
+        printk("error\n");
+    }
+    if(gpio_pin_interrupt_configure(pPulse()->getDriver(),pPulse()->getPin(),GPIO_INT_EDGE_BOTH) != 0){
+        printk("error\n");
+    }
+    if(gpio_pin_interrupt_configure(pWindUp()->getDriver(),pWindUp()->getPin(),GPIO_INT_EDGE_BOTH) != 0){
+        printk("error\n");
+    }
+    
+    
+    gpio_init_callback(cbPortA(),Factory::onInterrupt,BIT(pSwitchhook()->getPin()));
+    gpio_init_callback(cbPortB(),Factory::onInterrupt,BIT(pPulse()->getPin())|BIT(pWindUp()->getPin())); //ODER oder PLUS ist beides möglich 
+
+    if(gpio_add_callback(pSwitchhook()->getDriver(),cbPortA()) != 0){
+        printk("error\n");
+    }
+    if(gpio_add_callback(pPulse()->getDriver(),cbPortB()) != 0){
+        printk("error\n");
+    }
+    if(gpio_add_callback(pWindUp()->getDriver(),cbPortB()) != 0){
+        printk("error\n");
+    }
+
+
 }
 
 void Factory::build() {
@@ -76,5 +105,25 @@ void Factory::start() {
     rotary()->startBehaviour();
     switchhook()->startBehaviour();
     dialer()->startBehaviour();
+}
+
+void Factory::onInterrupt(const struct device* dev, struct gpio_callback* cb, u32_t pins){
+    //printk("interrupt von %s,%i\n",dev->name,pins);
+    int key = irq_lock();
+    if ((pSwitchhook()->getDriver() == dev) && (BIT(pSwitchhook()->getPin()) & pins))
+    {
+        switchhook()->onInterrupt(pSwitchhook()->getPin()); //onInterrupt from the Interface gets fired
+    }
+
+    if ((pPulse()->getDriver() == dev) && (BIT(pPulse()->getPin()) & pins))
+    {
+        rotary()->onInterrupt(pPulse()->getPin()); //onInterrupt from the Interface gets fired
+    }
+
+    if ((pWindUp()->getDriver() == dev) && (BIT(pWindUp()->getPin()) & pins))
+    {
+        rotary()->onInterrupt(pWindUp()->getPin()); //onInterrupt from the Interface gets fired
+    }
+    irq_unlock(key);
 }
 

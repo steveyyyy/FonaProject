@@ -31,7 +31,12 @@ public:
     static Ringer* ringer(){return &_ringer;}
 
     static XF* xf(){return XF::getInstance();}
-    static IntManager* im(){return IntManager::getInstance();}
+
+    static gpio_callback* cbPortA(){return &_cbPortA;}
+    static gpio_callback* cbPortB(){return &_cbPortB;}
+    //static IntManager* im(){return IntManager::getInstance();}
+
+    static void onInterrupt(const struct device* dev, struct gpio_callback* cb, u32_t pins);
     
 private:
     Factory(/* args */);
@@ -52,6 +57,9 @@ private:
     static Fona _fona;
 
     static Ringer _ringer;
+
+    static struct gpio_callback _cbPortA;
+    static struct gpio_callback _cbPortB;
 };
 
 #endif

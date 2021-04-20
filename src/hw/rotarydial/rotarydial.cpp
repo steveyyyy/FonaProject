@@ -11,7 +11,7 @@ RotaryDial::RotaryDial(GPI* wind, GPI* pulse){
 
     pulsesOver=70;
     pulseWidth=65;
-    pulseRange=10;
+    pulseRange=20;
     delay=10;
 
     this->state = ST_INIT;
@@ -43,19 +43,19 @@ RotaryDial::RotaryDial(GPI* wind, GPI* pulse){
 RotaryDial::~RotaryDial() {}
 
 void RotaryDial::initHW() {
-    //interruptmanager of number pin
-    IntManager::Subscription subNumber;
-    subNumber.subscriber=this;
-    subNumber.pp.pin=wind->getPin();
-    subNumber.pp.dev=wind->getDriver();
-    IntManager::getInstance()->subscribe(subNumber);
+    // //interruptmanager of number pin
+    // IntManager::Subscription subNumber;
+    // subNumber.subscriber=this;
+    // subNumber.pp.pin=wind->getPin();
+    // subNumber.pp.dev=wind->getDriver();
+    // IntManager::getInstance()->subscribe(subNumber);
 
-    //interruptmanager of active pin
-    IntManager::Subscription subActive;
-    subActive.subscriber=this;
-    subActive.pp.pin=pulse->getPin();
-    subActive.pp.dev=pulse->getDriver();
-    IntManager::getInstance()->subscribe(subActive);
+    // //interruptmanager of active pin
+    // IntManager::Subscription subActive;
+    // subActive.subscriber=this;
+    // subActive.pp.pin=pulse->getPin();
+    // subActive.pp.dev=pulse->getDriver();
+    // IntManager::getInstance()->subscribe(subActive);
 }
 
 bool RotaryDial::processEvent(Event* e) {
