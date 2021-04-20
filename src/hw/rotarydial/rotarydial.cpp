@@ -136,10 +136,10 @@ bool RotaryDial::processEvent(Event* e) {
             for(int pulse:pulses){
                 if(pulse >= (pulseWidth-pulseRange) && pulse <= (pulseWidth+pulseRange)){
                     digit++;
-                    if(digit==10){
-                        digit=0;
-                    }
                 }
+            }
+            if(digit >= 10){
+                digit=0;
             }
             pulses.clear();
             notify();
