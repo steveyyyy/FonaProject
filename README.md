@@ -65,7 +65,7 @@ Each hardware component (e.g. dial, ringer, uart) is encapsulated in its own mod
 - The rotary dial logic uses **timing-based pulse detection** to decode numbers.
 - Fona integration is done over UART, with **non-blocking message queues**.
 - The code runs on **Zephyr RTOS**, which powers its timers and async behavior.
-- Diagrams and planning notes are in `informations/diagrams/` for those curious about the logic.
+- Diagrams and planning notes are in `informations/` for those curious about the logic.
 
 ---
 
