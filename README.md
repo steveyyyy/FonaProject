@@ -72,9 +72,8 @@ Each hardware component (e.g. dial, ringer, uart) is encapsulated in its own mod
 ## ☑️ Roadmap Ideas
 
 - 📱 Add very basic SMS sending support
-- 🛰️ Integrate GPS for geolocation
 - 🔋 Add battery voltage monitoring
-- 📷 Upload a photo of the actual build (optional, but would be amazing)
+- 📷 Upload a photo of the actual build
 
 ---
 
